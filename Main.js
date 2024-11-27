@@ -22,10 +22,7 @@ function myFunction() {
   for (var i = eventsData.length-1; i > (eventsData.length-50); i--) {
     var event = eventsData[i];
 
-    if (event[doneCol] != '') {
-      continue;
-    }
-    if (event[inbalPostCol] != '') {
+    if (event[doneCol] != '' || event[inbalPostCol] != '') {
       continue;
     }
 

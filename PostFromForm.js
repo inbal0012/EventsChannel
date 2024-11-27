@@ -1,5 +1,5 @@
 /**
- * Class for creating an Event Post the enm event form.
+ * Class for creating an Event Post the event form.
  */
 
     const DOUBLE_SPACE = "\n" + "\n";
@@ -24,7 +24,6 @@
           var events = []
           
           var doneCol = this._colNumberByLabel("Done?", eventsData) - 1;    // Sheet1!A
-          var inbalPostCol = this._colNumberByLabel("פוסט ענבל", eventsData) - 1;
           var nameCol = this.getEventNameCol();
           var typeCol = this.getPostTypeCol();
 
@@ -204,7 +203,7 @@
         }
 
         fixPost(row) {
-          return "fix Post";
+          return "fix Post";   // TODO
         }
 
         contactRequest(row) {
