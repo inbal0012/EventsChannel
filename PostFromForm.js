@@ -360,8 +360,6 @@
               tags = tags.replace(/[,]/g, " ");
             }
 
-            console.log(this.emojiTags(tags))
-
             return tags;
         }
 
@@ -470,10 +468,6 @@
 
 
             return '';
-        }
-
-        findEmojiForTag(value) {
-          
         }
         // #endregion Tags
 
