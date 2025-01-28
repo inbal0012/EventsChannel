@@ -202,7 +202,13 @@
         }
 
         fixPost(row) {
-          return "fix Post";   // TODO
+    var lineCol = this._colNumberByLabel("האם אתם אחד מהליינים הבאים? (1)", this.eventsData) - 1;
+    var linkCol = this._colNumberByLabel("יש לצרף את הלינק למודעה בערוץ עצמו (1)", this.eventsData) - 1;
+    var contactCol = this._colNumberByLabel("דרך ליצירת קשר?", this.eventsData) - 1;
+    var updatesCol = this._colNumberByLabel("מה העדכונים הרצויים?", this.eventsData) - 1;
+
+    var event = row[linkCol] != "" ? row[linkCol] : "by " + row[lineCol]
+    return "fix Post: \n" + event + "\nContact: " + row[contactCol] + "\nNeeded Updates: " + row[updatesCol]
         }
 
         contactRequest(row) {
