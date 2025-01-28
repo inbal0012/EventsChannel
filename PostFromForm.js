@@ -155,6 +155,10 @@
           return this._colNumberByLabel("האם תרצו להוסיף קידום בתשלום למודעה שלכם?", this.eventsData) - 1;
         }
 
+  getPaidDetailsCol() {
+    return this._colNumberByLabel("איזה כיף! אנא בחרו את הקידומים הרצויים", this.eventsData) - 1;
+  }
+
         getIsParmanentCol() {
           return this._colNumberByLabel("האם תרצה לפרסם את האירוע כאירוע קבוע בערוץ?", this.eventsData) - 1;
         }
@@ -198,7 +202,7 @@
         }
 
         buildPost(row) {
-            return this.parseName_place_date(row) + DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
+    return this.parsePaidPost(row) + this.parseName_place_date(row) + DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
         }
 
         fixPost(row) {
@@ -349,12 +353,11 @@
             }
 
             if (!this.isTicketsAvailable(row)) {
-                tags = this.parsePaidPost(row) + "#SaveTheDate" + "\n" + tags;
+      tags = "#SaveTheDate" + "\n" + tags;
             }
 
             if (tags != '') {
               tags = tags.replace(/[,]/g, " ");
-              // return tags;
             }
 
             console.log(this.emojiTags(tags))
@@ -552,9 +555,10 @@
 
         parsePaidPost(row) {
             var paidPostCol = this.getPaidPostCol();
+    var paidDetailsCol = this.getPaidDetailsCol();
 
             if (row[paidPostCol] == "כן")
-                return "‼️🤑\n"
+      return "‼️🤑 עבור: " + row[paidDetailsCol] + "\n"
             else
                 return ''
         }
