@@ -202,6 +202,11 @@
         }
 
         buildPost(row) {
+    var temp = this.getEventAndLineNames(row)
+    if(temp.indexOf("2VS2")+1) {
+      return this.build2VS2Post(row);
+    }
+
     return this.parsePaidPost(row) + this.parseName_place_date(row) + DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
         }
 
@@ -339,6 +344,23 @@
             }
           }
         }
+
+  build2VS2Post(row) {
+    var dateCol = this.getDateCol()
+    var date = row[dateCol]
+    var day = date.getDay();
+    if (day != 2)
+      return "2VS2 duplication"
+    
+    var temp = "האירועים הקרובים מבית 2VS2: \nאיפה: 2VS2 Swingers Club, פתח תקווה";
+    var tuesday = '#ללאאיזוןמגדרי\n **י THE OPEN LINE**\nמתי: יום שלישי, ' + this.DateInddmmyyyy(date) + ",  בשעה 22:00";
+    var thursday = '#באיזוןמגדרי\n **י UNLIMITED PARTY**\nמתי: יום חמישי, ' + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + ', בשעה 23:00';
+    var friday = '#באיזוןמגדרי\n**י PREMIUM PARTY FOR COUPLES**\nמתי: יום שישי, ' + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + ', בשעה 23:00';
+    var ending = 'לינק להרשמה \n http://tinyurl.com/2VS2Events\nמידע נוסף בתגובה הראשונה'
+    var tags = '#מסיבתסווינגרס #מסיבהליברלית #במועדון #אירועציבורי #מיניותפומבית #ללאמגבלתגיל #עםעישוןבפנים #ללאמתחםעישון'
+
+    return temp + DOUBLE_SPACE + tuesday + DOUBLE_SPACE + thursday + DOUBLE_SPACE + friday + DOUBLE_SPACE + ending + DOUBLE_SPACE + tags;
+  }
         
         // #region Tags
         parseTags(row) {
