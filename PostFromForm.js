@@ -579,7 +579,7 @@
             var systemApproved = this.parseSystemApproved(row)
             var name = this.parseName(row);
             var line = this.parseLine(...this.getEventAndLineNames(row));
-            return systemApproved + name + line;
+    return systemApproved + "**" + name + "**" + line;
         }
         
         parseName(row) {          
