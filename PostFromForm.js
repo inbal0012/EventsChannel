@@ -25,10 +25,11 @@
           
           var doneCol = this._colNumberByLabel("Done?", eventsData) - 1;    // Sheet1!A
           var nameCol = this.getEventNameCol();
+    var dateCol = this.getDateCol();
           var typeCol = this.getPostTypeCol();
 
           // check only last 50 entries
-    for (var i = eventsData.length - 1; i > (eventsData.length - 50); i--) {
+    for (var i = eventsData.length - 1; i > (eventsData.length - 100); i--) {
             var event = eventsData[i];
             
             if (event[doneCol] != '') {
@@ -39,7 +40,7 @@
               events.push("אירוע מסוג: " + event[typeCol]);
             }
             else 
-              events.push(event[nameCol]);
+        events.push(this.DateInddmmyyyy(event[dateCol]) + " - " + event[nameCol]);
           }
           return "יש " + count + " אירועים ממתינים:\n" + events.join("\n");
         }
