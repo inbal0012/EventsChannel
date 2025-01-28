@@ -19,7 +19,7 @@ function myFunction() {
   var inbalPostCol = post._colNumberByLabel("פוסט ענבל", eventsData) - 1;
   
   // check only last 50 entries
-  for (var i = eventsData.length-1; i > (eventsData.length-50); i--) {
+  for (var i = eventsData.length - 1; i > (eventsData.length - 50); i--) {
     var event = eventsData[i];
 
     if (event[doneCol] != '' || event[inbalPostCol] != '') {
@@ -27,7 +27,7 @@ function myFunction() {
     }
 
     var [result, moreDetails] = post.createPost(i);
-    var cell = eventsSheet.getRange(i+1, inbalPostCol+1);
+    var cell = eventsSheet.getRange(i + 1, inbalPostCol + 1);
     cell.setValue(result);
     telegram.sendPost(result, moreDetails);
 
@@ -55,7 +55,7 @@ function testFunction() {
   var inbalPostCol = post._colNumberByLabel("פוסט ענבל", eventsData) - 1;
   
   // check only last 50 entries
-  for (var i = eventsData.length-1; i > (eventsData.length-50); i--) {
+  for (var i = eventsData.length - 1; i > (eventsData.length - 50); i--) {
     var event = eventsData[i];
 
     if (event[doneCol] != '') {
@@ -131,7 +131,7 @@ function loop(callback) {
   var doneCol = post._colNumberByLabel("Done?", eventsData) - 1;    // Sheet1!A
   var inbalPostCol = post._colNumberByLabel("פוסט ענבל", eventsData) - 1;
   
-  for (var i = 450; i< eventsData.length; i++) {
+  for (var i = 450; i < eventsData.length; i++) {
     var event = eventsData[i];
 
     if (event[doneCol] != '') {

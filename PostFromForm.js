@@ -28,7 +28,7 @@
           var typeCol = this.getPostTypeCol();
 
           // check only last 50 entries
-          for (var i = eventsData.length-1; i > (eventsData.length-50); i--) {
+    for (var i = eventsData.length - 1; i > (eventsData.length - 50); i--) {
             var event = eventsData[i];
             
             if (event[doneCol] != '') {
@@ -45,8 +45,6 @@
         }
 
         createPost(ROW_NUM) {
-            var fixEvent = "TODO";  // COL E
-
             var row = this.eventsData[ROW_NUM];
 
             var postEvent = this.switchPostType(row);          
@@ -176,7 +174,7 @@
         // #endregion ColByLabel
 
         switchPostType(row) {
-            var postTypeCol    = this.getPostTypeCol();
+    var postTypeCol = this.getPostTypeCol();
             var linkToEventCol = this.getLinkToEventCol();
             var cancleEventCol = this.getCancleEventCol();
 
@@ -210,7 +208,7 @@
           var contWay = this.getContactWaysCol()
           var contSubj = this.getContactSubjectCol();
             
-          return "Contact Request" + DOUBLE_SPACE + "דרך תקשורת: " + row[contWay] + DOUBLE_SPACE +  "סיבה: " + row[contSubj];
+    return "Contact Request" + DOUBLE_SPACE + "דרך תקשורת: " + row[contWay] + DOUBLE_SPACE + "סיבה: " + row[contSubj];
         }
 
         parseChannelDiscount(row) {
@@ -285,7 +283,7 @@
           }
 
           if (events.length > 0) {
-            for (var i = 0; i<events.length; i++) {
+      for (var i = 0; i < events.length; i++) {
               if (events[i][approvedCol] != '')
                 return events[i][approvedCol];
             }
@@ -305,7 +303,7 @@
           }
 
           if (events.length > 0) {
-            for (var i = 0; i<events.length; i++) {
+      for (var i = 0; i < events.length; i++) {
               if (events[i][linkCol] != '')
                 return events[i][linkCol];
             }
@@ -324,7 +322,7 @@
           }
 
           if (events.length > 0) {
-            for (var i = 0; i<events.length; i++) {
+      for (var i = 0; i < events.length; i++) {
               if (events[i][wantedCol] != '')
                 return events[i][wantedCol];
             }
@@ -440,11 +438,11 @@
             
             var emojis = [];
 
-            for (var i=0; i<tags.length; i++) {
+    for (var i = 0; i < tags.length; i++) {
               var tag = tags[i];
-              for (var j=0; j<eventsData.length; j++) {
+      for (var j = 0; j < eventsData.length; j++) {
                 var emoji = eventsData[j][tagsCol];
-                if(tags[i] == eventsData[j][tagsCol]) {
+        if (tags[i] == eventsData[j][tagsCol]) {
                   emojis.push(eventsData[j][emojiCol])
                 }
 
@@ -454,7 +452,7 @@
 
             tags.forEach((currTag) => {
               eventsData.forEach((value) => {
-                if(currTag == value[tagsCol]) {
+        if (currTag == value[tagsCol]) {
                   emojis.push(value[emojiCol])
                 }
               })
@@ -532,7 +530,7 @@
 
             var notes = row[additionalsNotesCol];
             if (notes != '')
-              notes = "**Additionals Notes:** \n" + notes
+      notes = "**Additionals Notes:** \n" + notes + "\n"
             return notes;
         }
 
@@ -558,7 +556,7 @@
             var eventNameCol = this.getEventNameCol();
             var lineNameCol = this.getLineNameCol();
 
-            return[row[eventNameCol], row[lineNameCol]];
+    return [row[eventNameCol], row[lineNameCol]];
 
         }
 
@@ -613,7 +611,7 @@
             var dayCol = this.getDayCol();
             var dateCol = this.getDateCol();
 
-            if(row[isParmanentCol] == "כן") {
+    if (row[isParmanentCol] == "כן") {
               return "מתי: כל יום " + row[daysCol] + this.parseHour(row);
             }
             return "מתי: יום " + row[dayCol] + ", " + this.DateInddmmyyyy(row[dateCol]) + this.parseHour(row);
@@ -623,7 +621,7 @@
         parseHour(row) {
             var hourCol = this.getHourCol();
 
-            if(row[hourCol] != '')
+    if (row[hourCol] != '')
               return ", בשעה " + row[hourCol];
             else 
               return '';
