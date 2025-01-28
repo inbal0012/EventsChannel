@@ -51,6 +51,10 @@
             var postEvent = this.switchPostType(row);          
             var eventDescription = this.getEventDescription(row);
 
+    if (postEvent == "") {
+      postEvent = "Error parsing an event. look at the table for more info"
+    }
+    
             return [postEvent, eventDescription];
         }
 
