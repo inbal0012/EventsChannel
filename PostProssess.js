@@ -132,10 +132,15 @@ function extractExstraData(data) {
 
   return exstraData;
 }
-function addToTable(postArray) {
-  var spreadsheet = getSpreadsheet();
-  var recordSheet = spreadsheet.getSheetByName(EVENT_TABLE);
 
+function addToTable(postArray) {
+  const FORM_SHEET_NAME = "פירסור פוסט לטבלה";
+  const FORM_RANGE = 'A2:J2';
+  const EVENT_TABLE = "טבלת אירועים";
+  const DATA_RANGE = 'A4:A18';
+  var spreadsheet = getSpreadsheet();
+  var formSheet = spreadsheet.getSheetByName(FORM_SHEET_NAME);
+  var recordSheet = spreadsheet.getSheetByName(EVENT_TABLE);
   
   recordSheet.appendRow(postArray);
   formSheet.getRange(DATA_RANGE).clearContent();
