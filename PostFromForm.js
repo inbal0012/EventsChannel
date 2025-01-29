@@ -42,7 +42,11 @@ class Post {
       else
         events.push(this.DateInddmmyyyy(event[dateCol]) + " - " + event[nameCol]);
     }
-    return "יש " + count + " אירועים ממתינים:\n" + events.join("\n");
+    var res = "יש " + count + " אירועים ממתינים";
+    if (count == 0) {
+      return res + "!!!!!!\nכל הכבוד!!! 💪💪💪";
+    }
+    return res + ":\n" + events.join("\n");
   }
 
   createPost(ROW_NUM) {
