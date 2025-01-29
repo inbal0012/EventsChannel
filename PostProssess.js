@@ -25,6 +25,11 @@ function SUBMIT() {
 
   var location = extractLocation(data);
   var eventLink = extractEventLink(data, formSheet);
+  if (!validateEventLink(eventLink)) {
+    Browser.msgBox("Fill the registration link too!");
+    return;
+  }
+
   var [day, date, hour] = extractDayDateAndHour(data);
   var tags = extractTags(data);
   var [name, lineName] = extractEventAndLineName(data);
@@ -43,6 +48,12 @@ function extractLocation(data) {
   }
   return "";
 }
+function validateEventLink(eventLink) {
+    if (eventLink == undefined) {
+      return false
+    }
+    return true;
+}
 
 function extractEventLink(data, formSheet) {
   var eventLink = formSheet.getRange('B2').getCell(1, 1).getValue();
@@ -52,7 +63,6 @@ function extractEventLink(data, formSheet) {
 
   var eventLinkRowNum = findRowInPost("://", data)
   if (eventLinkRowNum == -1) {
-    Browser.msgBox("Fill the registration link too!");
     return;
   }
 
