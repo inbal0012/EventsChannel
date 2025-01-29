@@ -10,37 +10,53 @@ const weekDays = {
 
 function SUBMIT() {
   const FORM_SHEET_NAME = "פירסור פוסט לטבלה";
-  const FORM_RANGE = 'A2:J2';
-  const EVENT_TABLE = "טבלת אירועים";
   const DATA_RANGE = 'A4:A18';
 
-  var spreadsheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0");
+  var spreadsheet = getSpreadsheet();
   var formSheet = spreadsheet.getSheetByName(FORM_SHEET_NAME);
-  var recordSheet = spreadsheet.getSheetByName(EVENT_TABLE);
 
-  var data = formSheet.getRange(DATA_RANGE).getValues().flat();
+  var data = getData(formSheet, DATA_RANGE);
 
-  var postLink = formSheet.getRange('A2').getCell(1, 1).getValue();
-  if (postLink == "") {
+  var postLink = getPostLink(formSheet);
+  if (!validatePostLink(postLink)) {
     Browser.msgBox("Fill the post link too!");
     return;
   }
 
-  var locationRow = findRowInPost("מיקום", data)
-  var nameRaw = data[locationRow - 1]
-  var location = data[locationRow]
-  var timeRaw = data[locationRow + 1]
+  var location = extractLocation(data);
+  var eventLink = extractEventLink(data, formSheet);
+  var [day, date, hour] = extractDayDateAndHour(data);
+  var tags = extractTags(data);
+  var [name, lineName] = extractEventAndLineName(data);
+  var exstraData = extractExstraData(data);
+
+  // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, מאושר ערוץ
+  var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData]
+
+  addToTable(postArray);
+}
+
+function extractLocation(data) {
+  var locationRow = findRowInPost("מיקום", data);
+  if (locationRow !== -1) {
+    return data[locationRow].replace("מיקום: ", "");
+  }
+  return "";
+}
+
+function extractEventLink(data, formSheet) {
+  var eventLink = formSheet.getRange('B2').getCell(1, 1).getValue();
+  if (eventLink != "") {
+    return eventLink;
+  }
 
   var eventLinkRowNum = findRowInPost("://", data)
   if (eventLinkRowNum == -1) {
-    var eventLink = formSheet.getRange('B2').getCell(1, 1).getValue();
-    if (eventLink == "") {
-      Browser.msgBox("Fill the registration link too!");
-      return;
-    }
+    Browser.msgBox("Fill the registration link too!");
+    return;
   }
-  else
-    var eventLink = data[eventLinkRowNum]
+
+  var eventLink = data[eventLinkRowNum]
 
   if (eventLink.includes("(")) {
     var temp = eventLink.split("(")
@@ -55,6 +71,13 @@ function SUBMIT() {
     }
   }
 
+  return eventLink;
+
+}
+
+function extractDayDateAndHour(data) {
+  var timeRaw = data[findRowInPost("מתי", data)]
+
   temp = timeRaw.replace("מתי: ", "").split(",")
   var day = temp[0].replace("יום ", "")
   var date = temp[1].trim()
@@ -63,39 +86,66 @@ function SUBMIT() {
     hour = temp[2].replace("בשעה ", "")
   }
 
-  location = location.replace("מיקום: ", "")
+  return [day, date, hour];
+}
 
-  temp = nameRaw.split("מבית ")
-  var name = temp[0]
+function extractEventAndLineName(data) {
+  var nameRaw = data[0]
+
+  var temp = nameRaw.split("מבית ")
+  var name = temp[0], lineName = ""
   if (temp.length > 1) {
     var lineName = temp[1];
   }
   else {
     // TODO search line name in DB
-    var lineName = ""
   }
 
-  var tags = data[findRowInPost("#", data)]
-  // TODO #SaveTheDate
+  return [name, lineName];
+}
 
+function extractTags(data) {
+  var tagsRow = findRowInPost("#", data);
+  var tags = data[tagsRow];
+  if (tags.includes("SaveTheDate")) {
+    tags += data[tagsRow + 1];
+  }
+
+  return tags;
+}
+
+function extractExstraData(data) {
   var exstraData = data[eventLinkRowNum + 1]
   if (exstraData.includes("פרטים")) {
     exstraData = data[eventLinkRowNum + 2]
   }
 
-  // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, מאושר ערוץ
-  var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData]
+  return exstraData;
+}
+function addToTable(postArray) {
+  var spreadsheet = getSpreadsheet();
+  var recordSheet = spreadsheet.getSheetByName(EVENT_TABLE);
 
-  // var link = formSheet.getRange('I2').getCell(1, 1);
-  // if (link.isBlank()) {
-  //   Browser.msgBox("Fill the details link too!");
-  //   return;
-  // }
-  // else {
+  
   recordSheet.appendRow(postArray);
   formSheet.getRange(DATA_RANGE).clearContent();
   formSheet.getRange(FORM_RANGE).clearContent();
-  // }
+}
+
+function getSpreadsheet() {
+  return SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0");
+}
+
+function getData(sheet, range) {
+  return sheet.getRange(range).getValues().flat();
+}
+
+function getPostLink(sheet) {
+  return sheet.getRange('A2').getCell(1, 1).getValue();
+}
+
+function validatePostLink(postLink) {
+  return postLink !== "";
 }
 
 function findRowInPost(searchWord, post) {
