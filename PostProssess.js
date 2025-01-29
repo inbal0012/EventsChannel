@@ -118,13 +118,14 @@ function extractTags(data) {
   var tagsRow = findRowInPost("#", data);
   var tags = data[tagsRow];
   if (tags.includes("SaveTheDate")) {
-    tags += data[tagsRow + 1];
+    tags += " " + data[tagsRow + 1];
   }
 
   return tags;
 }
 
 function extractExstraData(data) {
+  var eventLinkRowNum = findRowInPost("להרשמה", data)
   var exstraData = data[eventLinkRowNum + 1]
   if (exstraData.includes("פרטים")) {
     exstraData = data[eventLinkRowNum + 2]
