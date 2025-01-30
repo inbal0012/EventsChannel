@@ -1,3 +1,5 @@
+const milInDay = 86400000;
+
 const weekDays = {
   "ראשון": 0,
   "שני": 1,
@@ -229,9 +231,9 @@ function hotlineFooter() {
 }
 
 function parsePermanentEvents(eventsData) {
-  var dateCol = _colNumberByLabel("תאריך", eventsData) - 1;
-  var dayCol = _colNumberByLabel("יום", eventsData) - 1;
-  var prepCol = _colNumberByLabel("הכנה לסיכום שבועי", eventsData) - 1;
+  var dateCol = _colNumberByLabel("תאריך", eventsData);
+  var dayCol = _colNumberByLabel("יום", eventsData);
+  var prepCol = _colNumberByLabel("הכנה לסיכום שבועי", eventsData);
   var events = {};
 
   eventsData.forEach(function (value) {
@@ -266,8 +268,8 @@ function parseEventsByDate(eventsData) {
 }
 
 function parseIntoEventGroups(eventsData) {
-  var dateCol = _colNumberByLabel("תאריך", eventsData) - 1;
-  var prepCol = _colNumberByLabel("הכנה לסיכום שבועי", eventsData) - 1;
+  var dateCol = _colNumberByLabel("תאריך", eventsData);
+  var prepCol = _colNumberByLabel("הכנה לסיכום שבועי", eventsData);
 
   var events = {}, thisWeekend = {}, nextWeek = {}, after = {};
 
@@ -289,11 +291,10 @@ function parseIntoEventGroups(eventsData) {
 }
 
 function setEventGroup(curDate, thisWeekend, nextWeek, after) {
-
-  var today = new Date(), saturday = new Date(), nextSat = new Date();
-  today.setDate(today.getDate() - 1)
-  saturday.setDate(today.getDate() + 3);
-  nextSat.setDate(saturday.getDate() + 7);
+  var today = new Date();
+  today.setTime(today.getTime())
+  var saturday = new Date(today.getTime() + 3*milInDay);
+  var nextSat = new Date(saturday.getTime() + 7*milInDay);
 
   if (curDate < saturday) {
     return thisWeekend;
@@ -378,11 +379,15 @@ function isFutureEvent(curDate) {
 
 // #region Titles
 function titles() {
-  var today = new Date(), saturday = new Date(), nextSat = new Date(), thu = new Date();
-  today.setDate(today.getDate() - 1)
-  thu.setDate(today.getDate() + 1)
-  saturday.setDate(today.getDate() + 3);
-  nextSat.setDate(saturday.getDate() + 7);
+  var today = new Date();
+  var thu = new Date(today.getTime() + 1*milInDay)
+  var saturday = new Date(today.getTime() + 3*milInDay);
+  var nextSat = new Date(saturday.getTime() + 7*milInDay);
+  console.log(today.getTime())
+  
+  var today = new Date();
+  today.setTime(today.getTime())
+
 
   var thisWeekend = createTitle("סופש הקרוב", thu, saturday);
 
