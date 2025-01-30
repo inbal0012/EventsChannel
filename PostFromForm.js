@@ -192,7 +192,6 @@ class Post {
 
   switchPostType(row) {
     var postTypeCol = this.getPostTypeCol();
-    var linkToEventCol = this.getLinkToEventCol();
     var cancleEventCol = this.getCancleEventCol();
 
     var postType = row[postTypeCol]
@@ -201,7 +200,7 @@ class Post {
       case "מארגן אירוע ורוצה לפרסם":
         return this.buildPost(row);
       case "נתקלתי באירוע ואני רוצה לשתף":
-        return postType + "\n" + row[linkToEventCol];
+        return this.shareEvent(row);
       case "מארגן אירוע ומבקש להוריד פרסום":
         return postType + "\n" + row[cancleEventCol];
       case "מארגן אירוע ורוצה לעדכן":
@@ -237,6 +236,16 @@ class Post {
     var contSubj = this.getContactSubjectCol();
 
     return "Contact Request" + DOUBLE_SPACE + "דרך תקשורת: " + row[contWay] + DOUBLE_SPACE + "סיבה: " + row[contSubj];
+  }
+
+  shareEvent(row) {
+    var postTypeCol = this.getPostTypeCol();
+    var linkToEventCol = this.getLinkToEventCol();
+    var eventNameCol = this.getEventNameCol()
+
+    var postType = row[postTypeCol]
+
+    return postType + "\n" + row[eventNameCol] + " - " + row[linkToEventCol];
   }
 
   parseChannelDiscount(row) {
