@@ -192,7 +192,7 @@ function WEEKLY_SUMMERY() {
   const EVENT_TABLE = "טבלת אירועים";
   const DATA_RANGE = 'A1:S';
 
-  var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName(EVENT_TABLE);
+  var eventsSheet = getSpreadsheet().getSheetByName(EVENT_TABLE);
   var eventsData = eventsSheet.getRange(DATA_RANGE).getValues();
 
   var eventsByDate = parseEventsByDate(eventsData);
@@ -210,7 +210,7 @@ function WEEKLY_SUMMERY() {
 function saveSummery() {
   const WEEKLY_SUMMERY_TABLE = "סיכום שבועי"
   var summery = WEEKLY_SUMMERY();
-  var wsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName(WEEKLY_SUMMERY_TABLE);
+  var wsSheet = getSpreadsheet().getSheetByName(WEEKLY_SUMMERY_TABLE);
 
   var cell = wsSheet.getRange(2, 1);
   cell.setValue(summery);
