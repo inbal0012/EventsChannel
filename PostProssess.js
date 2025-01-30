@@ -41,6 +41,7 @@ function SUBMIT() {
   addToTable(postArray);
 }
 
+// #region submitEvent
 function extractLocation(data) {
   var locationRow = findRowInPost("מיקום", data);
   if (locationRow !== -1) {
@@ -163,6 +164,7 @@ function getPostLink(sheet) {
 function validatePostLink(postLink) {
   return postLink !== "";
 }
+// #endregion submitEvent
 
 function findRowInPost(searchWord, post) {
   for (var i = 0; i < post.length; i++) {
