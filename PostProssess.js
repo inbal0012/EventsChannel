@@ -145,7 +145,7 @@ function addToTable(postArray) {
   var spreadsheet = getSpreadsheet();
   var formSheet = spreadsheet.getSheetByName(FORM_SHEET_NAME);
   var recordSheet = spreadsheet.getSheetByName(EVENT_TABLE);
-  
+
   recordSheet.appendRow(postArray);
   formSheet.getRange(DATA_RANGE).clearContent();
   formSheet.getRange(FORM_RANGE).clearContent();
@@ -220,8 +220,7 @@ function saveSummery() {
 }
 
 function hotlineFooter() {
-  var today = new Date();
-  today.setDate(today.getDate() - 1)
+  var today = setTodayDate();
   var hotline = ''
   if (today.getDate() < 8) {
     hotline = DOUBLE_SPACE + `אנו מאחלים שאף אחד לא יצטרך זאת, אך לעת צורך: 
@@ -267,6 +266,18 @@ function parseEventsByDate(eventsData) {
   return finalStr;
 }
 
+function setTodayDate() { 
+  const WEEKLY_SUMMERY_TABLE = "סיכום שבועי"
+  var wsSheet = getSpreadsheet().getSheetByName(WEEKLY_SUMMERY_TABLE);
+
+  var thuToggle = wsSheet.getRange(1,2).getCell(1, 1).getValue();
+  var today = new Date();
+  if (!thuToggle) {
+    return today;
+  }
+  return new Date(today.getTime() - 1*milInDay)
+}
+
 function parseIntoEventGroups(eventsData) {
   var dateCol = _colNumberByLabel("תאריך", eventsData);
   var prepCol = _colNumberByLabel("הכנה לסיכום שבועי", eventsData);
@@ -291,8 +302,7 @@ function parseIntoEventGroups(eventsData) {
 }
 
 function setEventGroup(curDate, thisWeekend, nextWeek, after) {
-  var today = new Date();
-  today.setTime(today.getTime())
+  var today = setTodayDate();
   var saturday = new Date(today.getTime() + 3*milInDay);
   var nextSat = new Date(saturday.getTime() + 7*milInDay);
 
@@ -344,7 +354,6 @@ function concatenateKeysAndEvents(keys, events) {
     }
   })
 
-  // console.log(eventsStr);
   return eventsStr;
 }
 
@@ -371,23 +380,17 @@ function isValidDate(curDate) {
 }
 
 function isFutureEvent(curDate) {
-  var today = new Date();
-  today.setDate(today.getDate() - 1)
+  var today = setTodayDate();
   return (curDate > today);
 }
 // #endregion Validations
 
 // #region Titles
 function titles() {
-  var today = new Date();
+  var today = setTodayDate();
   var thu = new Date(today.getTime() + 1*milInDay)
-  var saturday = new Date(today.getTime() + 3*milInDay);
+  var saturday = new Date(thu.getTime() + 3*milInDay);
   var nextSat = new Date(saturday.getTime() + 7*milInDay);
-  console.log(today.getTime())
-  
-  var today = new Date();
-  today.setTime(today.getTime())
-
 
   var thisWeekend = createTitle("סופש הקרוב", thu, saturday);
 
