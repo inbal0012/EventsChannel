@@ -52,10 +52,10 @@ function extractLocation(data) {
   return "";
 }
 function validateEventLink(eventLink) {
-    if (eventLink == undefined) {
-      return false
-    }
-    return true;
+  if (eventLink == undefined) {
+    return false
+  }
+  return true;
 }
 
 function extractEventLink(data, formSheet) {
@@ -328,16 +328,16 @@ function parseEventsByDate(eventsData) {
   return finalStr;
 }
 
-function setTodayDate() { 
+function setTodayDate() {
   const WEEKLY_SUMMERY_TABLE = "סיכום שבועי"
   var wsSheet = getSpreadsheet().getSheetByName(WEEKLY_SUMMERY_TABLE);
 
-  var thuToggle = wsSheet.getRange(1,2).getCell(1, 1).getValue();
+  var thuToggle = wsSheet.getRange(1, 2).getCell(1, 1).getValue();
   var today = new Date();
   if (!thuToggle) {
     return today;
   }
-  return new Date(today.getTime() - 1*milInDay)
+  return new Date(today.getTime() - 1 * milInDay)
 }
 
 function parseIntoEventGroups(eventsData) {
@@ -365,8 +365,8 @@ function parseIntoEventGroups(eventsData) {
 
 function setEventGroup(curDate, thisWeekend, nextWeek, after) {
   var today = setTodayDate();
-  var saturday = new Date(today.getTime() + 3*milInDay);
-  var nextSat = new Date(saturday.getTime() + 7*milInDay);
+  var saturday = new Date(today.getTime() + 3 * milInDay);
+  var nextSat = new Date(saturday.getTime() + 7 * milInDay);
 
   if (curDate < saturday) {
     return thisWeekend;
@@ -450,9 +450,9 @@ function isFutureEvent(curDate) {
 // #region Titles
 function titles() {
   var today = setTodayDate();
-  var thu = new Date(today.getTime() + 1*milInDay)
-  var saturday = new Date(thu.getTime() + 2*milInDay);
-  var nextSat = new Date(saturday.getTime() + 7*milInDay);
+  var thu = new Date(today.getTime() + 1 * milInDay)
+  var saturday = new Date(thu.getTime() + 2 * milInDay);
+  var nextSat = new Date(saturday.getTime() + 7 * milInDay);
 
   var thisWeekend = createTitle("סופש הקרוב", thu, saturday);
 
