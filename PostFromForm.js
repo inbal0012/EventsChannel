@@ -328,23 +328,7 @@ class Post {
   }
 
   findLineLink(eventName, lineName) {
-    // var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName("לינקים");
-    // var linksData = eventsSheet.getRange("A1:F").getValues();
-
-    // var linkCol = this._colNumberByLabel("לינק", linksData) - 1;
-
     return this.findInLinksTable(eventName, lineName, "לינק");
-    var events = this.findEventOrLineInLinks(eventName, lineName);
-    if (events == LINK_TABLE_ERROR) {
-      return LINK_TABLE_ERROR;
-    }
-
-    if (events.length > 0) {
-      for (var i = 0; i < events.length; i++) {
-        if (events[i][linkCol] != '')
-          return events[i][linkCol];
-      }
-    }
   }
 
   findInLinksTable(eventName, lineName, wantedColName) {

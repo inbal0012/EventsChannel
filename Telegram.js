@@ -70,34 +70,6 @@ class Telegram {
       this.sendTelegramMessageToTemp(eventDescription);
     }
   }
-
-  sendPostTest() {
-    const post = new Post();
-    const EVENT_TABLE = "Sheet1";
-    const DATA_RANGE = 'A1:BW';
-
-    var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1Q5pNPWrtLCkDtGDmadupOueSDQoZ3d8-FU0hJwZr4Kk/edit?gid=696755716#gid=696755716").getSheetByName(EVENT_TABLE);
-    var eventsData = eventsSheet.getDataRange().getValues();
-
-    var doneCol = post._colNumberByLabel("Done?", eventsData) - 1;    // Sheet1!A
-
-    for (var i = 0; i < eventsData.length; i++) {
-      if (eventsData[i][doneCol] == '') {
-        // post.createPost(i);
-      }
-    }
-
-    console.log("OMG");
-
-    const ROW_NUM = 458 - 1;
-    var row = eventsData[ROW_NUM];
-
-    var systemApproved = post.createPost(ROW_NUM); // COL D
-    // console.log(systemApproved);
-
-    // Send a message to Telegram
-    this.sendTelegramMessageToTemp(`Inbal Bot:\n ${systemApproved}`);
-  }
 }
 
 
