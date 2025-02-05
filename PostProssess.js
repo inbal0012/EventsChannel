@@ -389,7 +389,7 @@ function isFutureEvent(curDate) {
 function titles() {
   var today = setTodayDate();
   var thu = new Date(today.getTime() + 1*milInDay)
-  var saturday = new Date(thu.getTime() + 3*milInDay);
+  var saturday = new Date(thu.getTime() + 2*milInDay);
   var nextSat = new Date(saturday.getTime() + 7*milInDay);
 
   var thisWeekend = createTitle("סופש הקרוב", thu, saturday);
