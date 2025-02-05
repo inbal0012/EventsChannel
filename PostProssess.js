@@ -197,12 +197,14 @@ function WEEKLY_SUMMERY() {
   var eventsSheet = getSpreadsheet().getSheetByName(EVENT_TABLE);
   var eventsData = eventsSheet.getRange(DATA_RANGE).getValues();
 
-  var eventsByDate = parseEventsByDate(eventsData);
-  var permanentEvents = parsePermanentEvents(eventsData);
+  var allEvents = parseAllEvents(eventsData)
+  // var eventsByDate = parseEventsByDate(eventsData);
+  // var permanentEvents = parsePermanentEvents(eventsData);
+  // var allEvents = eventsByDate + permanentEvents;
 
   const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
 
-  var finalStr = WEEKLY_HEADER + DOUBLE_SPACE + eventsByDate + permanentEvents +
+  var finalStr = WEEKLY_HEADER + DOUBLE_SPACE + allEvents + //eventsByDate + permanentEvents +
     DOUBLE_SPACE + WEEKLY_FOOTER + hotlineFooter();
   finalStr = "Updated at: " + t + "\n" + finalStr
   console.log(finalStr)
@@ -249,6 +251,66 @@ function parsePermanentEvents(eventsData) {
   var finalStr = createTitle("אירועים קבועים") + eventsStr;
 
   return finalStr;
+}
+
+function parseAllEvents(eventsData) {
+  var eventGroups = parseAllIntoEventGroups(eventsData);
+  var groupsStr = eventGroups.map(group => concatenateKeysAndEvents(allKeys(group), group));
+
+  var titlesStr = titles();
+
+  var finalStr = '';
+  for (var i = 0; i < groupsStr.length; i++) {
+    finalStr += titlesStr[i] + groupsStr[i] + DOUBLE_SPACE
+  }
+
+  return finalStr;
+}
+
+function parseAllIntoEventGroups(eventsData) {
+  var dateCol = _colNumberByLabel("תאריך", eventsData);
+  var dayCol = _colNumberByLabel("יום", eventsData);
+  var prepCol = _colNumberByLabel("הכנה לסיכום שבועי", eventsData);
+
+  var events = {}, thisWeekend = {}, nextWeek = {}, after = {}, permEvents = {};
+
+  eventsData.forEach(function (value) {
+    var curDate = new Date(value[dateCol]);
+    if (value[dateCol] === "אירוע קבוע") {
+      var day = value[dayCol];
+      fillEventsDict(permEvents, day, value[prepCol]);
+    }
+    else {
+      if (!isValidDate(curDate))
+        return;
+
+      if (!isFutureEvent(curDate))
+        return;
+
+      events = setEventGroup(curDate, thisWeekend, nextWeek, after)
+
+      var curDateStr = curDate.toLocaleDateString("en-GB");
+      fillEventsDict(events, curDateStr, value[prepCol]);
+    }
+  })
+
+  return [thisWeekend, nextWeek, after, permEvents];
+}
+
+function allKeys(events) {
+  var datesKeys = Object.keys(events);
+  if (!datesKeys[0].includes("/")) {
+    return Object.keys(weekDays);
+  }
+
+  datesKeys.sort(function (a, b) {
+    // '01/03/2014'.split('/')
+    // gives ["01", "03", "2024"]
+    a = a.split('/');
+    b = b.split('/');
+    return a[1] - b[1] || a[0] - b[0];
+  });
+  return datesKeys;
 }
 
 // #region Events By Date
@@ -394,12 +456,14 @@ function titles() {
 
   var thisWeekend = createTitle("סופש הקרוב", thu, saturday);
 
-  saturday.setDate(saturday.getDate() + 1);
+  saturday.setTime(saturday.getTime() + 1 * milInDay)
   var nextWeek = createTitle("השבוע הקרוב", saturday, nextSat)
 
-  var after = createTitle("אירועים הבאים")
+  var after = createTitle("אירועים הבאים");
 
-  return [thisWeekend, nextWeek, after];
+  var permEvents = createTitle("אירועים קבועים");
+
+  return [thisWeekend, nextWeek, after, permEvents];
 }
 
 function createTitle(text, startDate = null, endDate = null) {
