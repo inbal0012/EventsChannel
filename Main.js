@@ -3,16 +3,18 @@ if (typeof require !== 'undefined') {
   UnitTestingApp = require('./UnitTestingApp.js');
   Post = require('./PostFromForm.js');
   Telegram = require('./Telegram.js');
+  Config = require('./config.js');
 }
 
 function parseForm() {
   const post = new Post();
   const telegram = new Telegram();
+  const config = new Config()
 
   const EVENT_TABLE = "Sheet1";
   const DATA_RANGE = 'A1:BW';
 
-  var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1Q5pNPWrtLCkDtGDmadupOueSDQoZ3d8-FU0hJwZr4Kk/edit?gid=696755716#gid=696755716").getSheetByName(EVENT_TABLE);
+  var eventsSheet = SpreadsheetApp.openByUrl(config.ENM_SHEET_URL).getSheetByName(EVENT_TABLE);
   var eventsData = eventsSheet.getDataRange().getValues();
 
   var doneCol = post._colNumberByLabel("Done?", eventsData) - 1;    // Sheet1!A

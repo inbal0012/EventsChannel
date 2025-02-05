@@ -5,14 +5,21 @@
 const DOUBLE_SPACE = "\n" + "\n";
 const LINK_TABLE_ERROR = "There's a problem with Links Table"
 
+// jshint esversion: 8
+if (typeof require !== 'undefined') {
+  Post = require('./PostFromForm.js');
+  Config = require('./config.js');
+}
+
 class Post {
   constructor() {
     if (Post.instance) return Post.instance;
 
     Post.instance = this;
+    this.config = new Config();
 
     const EVENT_TABLE = "Sheet1";
-    this.eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1Q5pNPWrtLCkDtGDmadupOueSDQoZ3d8-FU0hJwZr4Kk/edit?gid=696755716#gid=696755716").getSheetByName(EVENT_TABLE);
+    this.eventsSheet = SpreadsheetApp.openByUrl(this.config.ENM_SHEET_URL).getSheetByName(EVENT_TABLE);
     this.eventsData = this.eventsSheet.getDataRange().getValues();
 
     return Post.instance;
@@ -275,7 +282,7 @@ class Post {
   }
 
   findEventOrLineInLinks(eventName, lineName) {
-    var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName("לינקים");
+    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("לינקים");
     var eventsTableData = eventsSheet.getDataRange().getValues();
 
     eventName = eventName.toLowerCase().trim();
@@ -308,7 +315,7 @@ class Post {
   }
 
   findSystemApproved(eventName, lineName) {
-    var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName("לינקים");
+    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("לינקים");
     var linksData = eventsSheet.getRange("A1:F").getValues();
 
     var approvedCol = this._colNumberByLabel("מאושר ערוץ", linksData) - 1;
@@ -332,7 +339,7 @@ class Post {
   }
 
   findInLinksTable(eventName, lineName, wantedColName) {
-    var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName("לינקים");
+    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("לינקים");
     var linksData = eventsSheet.getRange("A1:F").getValues();
 
     var wantedCol = this._colNumberByLabel(wantedColName, linksData) - 1;
@@ -445,7 +452,7 @@ class Post {
   }
 
   getTagsByPostLink(postLink) {
-    var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName("טבלת אירועים");
+    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("טבלת אירועים");
     var eventsData = eventsSheet.getRange("A1:Z").getValues();
 
     var postLinkCol = this._colNumberByLabel("לינק לפוסט", eventsData) - 1;
@@ -464,7 +471,7 @@ class Post {
   }
 
   emojiTags(tagsText) {
-    var eventsSheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/16kV2BNZj0bTKLeYuvoKt0ro8bq2WCury-wMqoOqWeTw/edit?gid=0#gid=0").getSheetByName("אימוג'ים");
+    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("אימוג'ים");
     var eventsData = eventsSheet.getDataRange().getValues();
 
     var emojiCol = this._colNumberByLabel("אימוג'י", eventsData) - 1;
