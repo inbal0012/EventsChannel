@@ -221,8 +221,8 @@ class Post {
     eventName = eventName.toLowerCase().trim();
     lineName = lineName.toLowerCase().trim();
 
-    var eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName)
-    var lineNameCol = this.getRecordsTableCol(this.RecordsTableCols.LineName)
+    var eventNameCol = this._colNumberByLabel(this.RecordsTableCols.EventName, linksData) - 1;
+    var lineNameCol = this._colNumberByLabel(this.RecordsTableCols.LineName, linksData) - 1;
 
     if (isNaN(eventNameCol)) {
       // throw new Error("problem with Links Table");
@@ -256,7 +256,10 @@ class Post {
   }
 
   findInLinksTable(eventName, lineName, wantedColName) {
-    var wantedCol = this.getRecordsTableCol(wantedColName)
+    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("לינקים");
+    var linksData = eventsSheet.getRange("A1:F").getValues();
+    
+    var wantedCol = this._colNumberByLabel(wantedColName, linksData) - 1;
 
     var events = this.findEventOrLineInLinks(eventName, lineName);
     if (events == LINK_TABLE_ERROR) {
