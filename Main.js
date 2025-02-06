@@ -6,6 +6,16 @@ if (typeof require !== 'undefined') {
   Config = require('./config.js');
 }
 
+function saveSummery() {
+  const post = new Post();
+  return post.saveSummery();
+}
+
+function SUBMIT() {
+  const post = new Post();
+  return post.savePost();
+}
+
 function parseForm() {
   const post = new Post();
   const telegram = new Telegram();
