@@ -89,11 +89,11 @@ class Post {
       if (event[typeCol] == PostTypes.publish) {
         events.push(this.DateInddmmyyyy(event[dateCol]) + " - " + event[nameCol]);
       }
-      if (event[typeCol] == PostTypes.share) {
-        events.push("שיתוף אירוע: " + event[typeCol]);
+      else if (event[typeCol] == PostTypes.share) {
+        events.push("שיתוף אירוע: " + event[nameCol]);
       }
       else
-        events.push("אירוע מסוג: " + event[typeCol]);
+      events.push("אירוע מסוג: " + event[typeCol]);        
     }
     var res = "יש " + count + " אירועים ממתינים";
     if (count == 0) {
