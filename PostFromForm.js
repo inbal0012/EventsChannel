@@ -51,11 +51,14 @@ class Post {
         continue;
       }
       count++;
-      if (event[nameCol] == "") {
-        events.push("אירוע מסוג: " + event[typeCol]);
+      if (event[typeCol] == PostTypes.publish) {
+        events.push(this.DateInddmmyyyy(event[dateCol]) + " - " + event[nameCol]);
+      }
+      if (event[typeCol] == PostTypes.share) {
+        events.push("שיתוף אירוע: " + event[typeCol]);
       }
       else
-        events.push(this.DateInddmmyyyy(event[dateCol]) + " - " + event[nameCol]);
+      events.push("אירוע מסוג: " + event[typeCol]);        
     }
     var res = "יש " + count + " אירועים ממתינים";
     if (count == 0) {
@@ -73,7 +76,7 @@ class Post {
     if (postEvent == "") {
       postEvent = "Error parsing an event. look at the table for more info"
     }
-    
+
     return [postEvent, eventDescription];
   }
 
