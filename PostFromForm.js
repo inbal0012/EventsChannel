@@ -5,6 +5,14 @@
 const DOUBLE_SPACE = "\n" + "\n";
 const LINK_TABLE_ERROR = "There's a problem with Links Table"
 
+const PostTypes = {
+  "publish": "מארגן אירוע ורוצה לפרסם",
+  "share": "נתקלתי באירוע ואני רוצה לשתף",
+  "cancel": "מארגן אירוע ומבקש להוריד פרסום",
+  "update": "מארגן אירוע ורוצה לעדכן",
+  "contact": "עוקב אחרי הערוץ ומבקש ליצור קשר"
+}
+
 // jshint esversion: 8
 if (typeof require !== 'undefined') {
   Post = require('./PostFromForm.js');
@@ -204,15 +212,15 @@ class Post {
     var postType = row[postTypeCol]
 
     switch (postType) {
-      case "מארגן אירוע ורוצה לפרסם":
+      case PostTypes.publish:
         return this.buildPost(row);
-      case "נתקלתי באירוע ואני רוצה לשתף":
+      case PostTypes.share:
         return this.shareEvent(row);
-      case "מארגן אירוע ומבקש להוריד פרסום":
+      case PostTypes.cancel:
         return postType + "\n" + row[cancleEventCol];
-      case "מארגן אירוע ורוצה לעדכן":
+      case PostTypes.update:
         return this.fixPost(row);
-      case "עוקב אחרי הערוץ ומבקש ליצור קשר":
+      case PostTypes.contact:
         return this.contactRequest(row);
       default:
         return '';
