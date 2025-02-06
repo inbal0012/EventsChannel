@@ -360,7 +360,7 @@ class Post {
     }
 
     if (tags != '')
-      tags = this.extractTags(tags);
+      tags = this.processTags(tags);
 
     return tags;
   }
@@ -373,7 +373,7 @@ class Post {
     return ev[tagsCol];
   }
 
-  extractTags(text) {
+  processTags(text) {
     var temp = text.match(/(#\S+)/g);
     if (temp != undefined && temp != null)
       return temp.join(" ");
