@@ -159,11 +159,18 @@ class Post {
     var isDiscountCol = this.getEnmTableCol(this.ENMTableCols.IsDiscount);
     var discountCol = this.getEnmTableCol(this.ENMTableCols.Discount);
 
-    if (row[isDiscountCol] == "כן") {
-      return "\n" + "💎 למגיעים דרך הערוץ: " + row[discountCol]
+    if (!(row[isDiscountCol] === "כן")) {
+      return ""
+    }
+
+    var discountStr = "\n" + "💎 למגיעים דרך הערוץ: ";
+    if (row[discountCol] < 1) {
+      discountStr += row[discountCol] * 100 + "% הנחה"
     }
     else
-      return ""
+      discountStr += row[discountCol]
+
+    return discountStr
   }
 
   parseSystemApproved(row) {
