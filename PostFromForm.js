@@ -4,6 +4,28 @@
 
 const DOUBLE_SPACE = "\n" + "\n";
 const LINK_TABLE_ERROR = "There's a problem with Links Table"
+const milInDay = 86400000;
+const weekDays = {
+  "ראשון": 0,
+  "שני": 1,
+  "שלישי": 2,
+  "רביעי": 3,
+  "חמישי": 4,
+  "שישי": 5,
+  "שבת": 6
+}
+const WEEKLY_HEADER = `** סיכום האירועים הקרובים בקהילה: ** 
+▫ אירועים קבועים 
+✅ מאושר ע''י צוות הערוץ. נבדק האם תואמים לתגיות 
+💎 הנחה לעוקבי הערוץ`
+const WEEKLY_FOOTER = `
+* לפרסום אירועים בחינם ניתן להגיש בטופס שלנו כאן. 
+https://enmeventsil.fillout.com/submitevent
+** ניתן לחפש אירועים לפי תגית. ניתן למצוא את התגיות כאן. 
+https://t.me/ENMeventsisrael/122 
+*** הייתם באירוע? מדהים! ספרו לנו איך היה. 
+https://enmevents.fillout.com/eventsfeedback
+**** הפוסט אינו מתעדכן. מומלץ לגלול ולראות גם את האירועים החדשים שיפורסמו אחרי.`;
 
 const PostTypes = {
   "publish": "מארגן אירוע ורוצה לפרסם",
@@ -35,6 +57,10 @@ class Post {
     this.recordsSheet = this.recordsSpreadsheet.getSheetByName(RECORDS_TABLE);
     this.recordsData = this.recordsSheet.getDataRange().getValues();
 
+    this.today = this.setTodayDate();
+    this.thu = new Date(this.today.getTime() + 1 * milInDay)
+    this.saturday = new Date(this.thu.getTime() + 2 * milInDay);
+    this.nextSat = new Date(this.saturday.getTime() + 7 * milInDay);
 
     this.ENMTableCols = this.config.ENMTableCols;
     this.RecordsTableCols = this.config.RecordsTableCols;
@@ -564,6 +590,375 @@ class Post {
     return letter;
   }
   // #endregion Column Helpers
+
+  savePost() {
+    const FORM_SHEET_NAME = "פירסור פוסט לטבלה";
+    const DATA_RANGE = 'A4:A18';
+
+    var formSheet = this.recordsSpreadsheet.getSheetByName(FORM_SHEET_NAME);
+
+    var data = this.getData(formSheet, DATA_RANGE);
+
+    var postLink = this.getPostLink(formSheet);
+    if (!this.validatePostLink(postLink)) {
+      Browser.msgBox("Fill the post link too!");
+      return;
+    }
+
+    var location = this.extractLocation(data);
+    var eventLink = this.extractEventLink(data, formSheet);
+    if (!this.validateEventLink(eventLink)) {
+      Browser.msgBox("Fill the registration link too!");
+      return;
+    }
+
+    var [day, date, hour] = this.extractDayDateAndHour(data);
+    var tags = this.extractTags(data);
+    var [name, lineName] = this.extractEventAndLineName(data);
+    var exstraData = this.extractExstraData(data);
+
+    // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, מאושר ערוץ
+    var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData]
+
+    this.addToTable(postArray);
+  }
+
+  // #region submitEvent
+  extractLocation(data) {
+    var locationRow = this.findRowInPost("מיקום", data);
+    if (locationRow !== -1) {
+      return data[locationRow].replace("מיקום: ", "");
+    }
+    return "";
+  }
+
+  validateEventLink(eventLink) {
+    if (eventLink == undefined) {
+      return false
+    }
+    return true;
+  }
+
+  extractEventLink(data, formSheet) {
+    var eventLink = formSheet.getRange('B2').getCell(1, 1).getValue();
+    if (eventLink != "") {
+      return eventLink;
+    }
+
+    var eventLinkRowNum = this.findRowInPost("://", data)
+    if (eventLinkRowNum == -1) {
+      return;
+    }
+
+    var eventLink = data[eventLinkRowNum]
+
+    if (eventLink.includes("(")) {
+      var temp = eventLink.split("(")
+      eventLink = "";
+      if (temp.length < 2) {
+        temp = data[this.findRowInPost("(", data)].split("(")
+        temp = temp[1].split(")")
+        eventLink = temp[0];
+      }
+      else {
+        eventLink = temp[1].replace(")", "")
+      }
+    }
+
+    return eventLink;
+
+  }
+
+  extractDayDateAndHour(data) {
+    var timeRaw = data[this.findRowInPost("מתי", data)]
+
+    var temp = timeRaw.replace("מתי: ", "").split(",")
+    var day = temp[0].replace("יום ", "")
+    var date = temp[1].trim()
+    var hour = ""
+    if (temp.length > 2) {
+      hour = temp[2].replace("בשעה ", "")
+    }
+
+    return [day, date, hour];
+  }
+
+  extractEventAndLineName(data) {
+    var nameRaw = data[0]
+
+    var temp = nameRaw.split("מבית ")
+    var name = temp[0], lineName = ""
+    if (temp.length > 1) {
+      var lineName = temp[1];
+    }
+    else {
+      // TODO search line name in DB
+    }
+
+    return [name, lineName];
+  }
+
+  extractTags(data) {
+    var tagsRow = this.findRowInPost("#", data);
+    var tags = data[tagsRow];
+    if (tags.includes("SaveTheDate")) {
+      tags += " " + data[tagsRow + 1];
+    }
+
+    return tags;
+  }
+
+  extractExstraData(data) {
+    var eventLinkRowNum = this.findRowInPost("להרשמה", data)
+    var exstraData = data[eventLinkRowNum + 1]
+    if (exstraData.includes("פרטים")) {
+      exstraData = data[eventLinkRowNum + 2]
+    }
+
+    return exstraData;
+  }
+
+  addToTable(postArray) {
+    const FORM_SHEET_NAME = "פירסור פוסט לטבלה";
+    const FORM_RANGE = 'A2:J2';
+    const EVENT_TABLE = "טבלת אירועים";
+    const DATA_RANGE = 'A4:A18';
+    var formSheet = this.recordsSpreadsheet.getSheetByName(FORM_SHEET_NAME);
+    var recordsSheet = this.recordsSpreadsheet.getSheetByName(EVENT_TABLE);
+
+    recordsSheet.appendRow(postArray);
+    formSheet.getRange(DATA_RANGE).clearContent();
+    formSheet.getRange(FORM_RANGE).clearContent();
+  }
+
+  getData(sheet, range) {
+    return sheet.getRange(range).getValues().flat();
+  }
+
+  getPostLink(sheet) {
+    return sheet.getRange('A2').getCell(1, 1).getValue();
+  }
+
+  validatePostLink(postLink) {
+    return postLink !== "";
+  }
+  // #endregion submitEvent
+
+  findRowInPost(searchWord, post) {
+    for (var i = 0; i < post.length; i++) {
+      if (post[i].includes(searchWord)) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  WEEKLY_SUMMERY() {
+    var allEvents = this.parseAllEvents()
+
+    const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
+
+    var finalStr = WEEKLY_HEADER + DOUBLE_SPACE + allEvents +
+      DOUBLE_SPACE + WEEKLY_FOOTER + this.hotlineFooter();
+    finalStr = "Updated at: " + t + "\n" + finalStr
+    console.log(finalStr)
+    return finalStr;
+  }
+
+  saveSummery() {
+    const WEEKLY_SUMMERY_TABLE = "סיכום שבועי"
+    var summery = this.WEEKLY_SUMMERY();
+    var wsSheet = this.recordsSpreadsheet.getSheetByName(WEEKLY_SUMMERY_TABLE);
+
+    var cell = wsSheet.getRange(2, 1);
+    cell.setValue(summery);
+
+  }
+
+  hotlineFooter() {
+    var hotline = ''
+    if (this.today.getDate() < 8) {
+      hotline = DOUBLE_SPACE + `אנו מאחלים שאף אחד לא יצטרך זאת, אך לעת צורך: 
+   קו סיוע במקרי פגיעה מינית - https://yahasim.org.il/line`;
+    }
+    return hotline;
+  }
+
+  // #region Parse Events
+  parseAllEvents() {
+    var eventGroups = this.parseAllIntoEventGroups();
+    var groupsStr = eventGroups.map(group => this.concatenateKeysAndEvents(this.allKeys(group), group));
+
+    var titlesStr = this.createTitles();
+
+    var finalStr = '';
+    for (var i = 0; i < groupsStr.length; i++) {
+      finalStr += titlesStr[i] + groupsStr[i] + DOUBLE_SPACE
+    }
+
+    return finalStr;
+  }
+
+  parseAllIntoEventGroups() {
+    var dateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
+    var dayCol = this.getRecordsTableCol(this.RecordsTableCols.Day);
+    var prepCol = this.getRecordsTableCol(this.RecordsTableCols.WeeklySummaryPrep);
+
+    var events = {}, thisWeekend = {}, nextWeek = {}, after = {}, permEvents = {};
+
+    this.recordsData.forEach((value) => {
+      var curDate = new Date(value[dateCol]);
+      if (value[dateCol] === "אירוע קבוע") {
+        var day = value[dayCol];
+        this.fillEventsDict(permEvents, day, value[prepCol]);
+      }
+      else {
+        if (!this.isValidDate(curDate))
+          return;
+
+        if (!this.isFutureEvent(curDate))
+          return;
+
+        events = this.setEventGroup(curDate, thisWeekend, nextWeek, after)
+
+        var curDateStr = curDate.toLocaleDateString("en-GB");
+        this.fillEventsDict(events, curDateStr, value[prepCol]);
+      }
+    })
+
+    return [thisWeekend, nextWeek, after, permEvents];
+  }
+
+  allKeys(events) {
+    var datesKeys = Object.keys(events);
+    if (!datesKeys[0].includes("/")) {
+      return Object.keys(weekDays);
+    }
+
+    datesKeys.sort((a, b) => {
+      // '01/03/2014'.split('/')
+      // gives ["01", "03", "2024"]
+      a = a.split('/');
+      b = b.split('/');
+      return a[1] - b[1] || a[0] - b[0];
+    });
+    return datesKeys;
+  }
+
+  setTodayDate() {
+    const WEEKLY_SUMMERY_TABLE = "סיכום שבועי"
+    var wsSheet = this.recordsSpreadsheet.getSheetByName(WEEKLY_SUMMERY_TABLE);
+
+    var thuToggle = wsSheet.getRange(1, 2).getCell(1, 1).getValue();
+    var today = new Date();
+    if (!thuToggle) {
+      return today;
+    }
+    return new Date(today.getTime() - 1 * milInDay)
+  }
+
+  setEventGroup(curDate, thisWeekend, nextWeek, after) {
+    if (curDate < this.saturday) {
+      return thisWeekend;
+    }
+    else {
+      if (curDate < this.nextSat) {
+        return nextWeek;
+      }
+      else
+        return after;
+    }
+  }
+  // #endregion Events By Date
+
+  // #region summery helper functions
+  fillEventsDict(dict, key, data) {
+    if (dict[key] == undefined) {
+      dict[key] = new Array();
+    }
+    if (data != '')
+      dict[key].push(data);
+  }
+
+  keysByDate(events) {
+    var datesKeys = Object.keys(events);
+    datesKeys.sort((a, b) => {
+      // '01/03/2014'.split('/')
+      // gives ["01", "03", "2024"]
+      a = a.split('/');
+      b = b.split('/');
+      return a[1] - b[1] || a[0] - b[0];
+    });
+    return datesKeys;
+  }
+
+  keysByWeekday() {
+    return Object.keys(weekDays);
+  }
+
+  concatenateKeysAndEvents(keys, events) {
+    var eventsStr = '';
+    keys.forEach((value, index) => {
+      if (events[value] != undefined) {
+        eventsStr += this.dateAndDay(value) + "\n";
+        eventsStr += events[value].join("\n");
+        eventsStr += "\n";
+      }
+    })
+
+    return eventsStr;
+  }
+
+  dateAndDay(value) {
+    if (value in weekDays) {
+      return value;
+    }
+    else {
+      days = this.keysByWeekday();
+      var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
+
+      var day = date.getDay();
+      return value + ", יום " + days[day];
+    }
+  }
+  // #endregion summery helper functions
+
+  // #region Validations
+  isValidDate(curDate) {
+    if (curDate == "Invalid Date")
+      return false;
+
+    return true;
+  }
+
+  isFutureEvent(curDate) {
+    return (curDate > this.today);
+  }
+  // #endregion Validations
+
+  // #region Titles
+  createTitles() {
+    var thisWeekend = this.createTitle("סופש הקרוב", this.thu, this.saturday);
+
+    var sunday = new Date(saturday.getTime() + 1 * milInDay)
+    var nextWeek = this.createTitle("השבוע הקרוב", sunday, this.nextSat)
+
+    var after = this.createTitle("אירועים הבאים");
+
+    var permEvents = this.createTitle("אירועים קבועים");
+
+    return [thisWeekend, nextWeek, after, permEvents];
+  }
+
+  createTitle(text, startDate = null, endDate = null) {
+    return "** --- " + text + (startDate != null ? this.titleDates(startDate, endDate) : '') + " --- **" + DOUBLE_SPACE;
+  }
+
+  titleDates(startDate, endDate) {
+    return " (" + startDate.getDate() + (startDate.getMonth() == endDate.getMonth() ? '' : "/" + (startDate.getMonth() + 1)) + "-" + endDate.toLocaleDateString("en-GB") + ")"
+  }
+  // #endregion Titles
 }
 if (typeof module !== "undefined") module.exports = Post;
 
