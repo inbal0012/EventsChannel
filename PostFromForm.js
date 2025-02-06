@@ -189,8 +189,8 @@ class Post {
   }
 
   findEventOrLineInLinks(eventName, lineName) {
-    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("לינקים");
-    var eventsTableData = eventsSheet.getDataRange().getValues();
+    var linksSheet = this.recordsSpreadsheet.getSheetByName("לינקים");
+    var linksData = linksSheet.getDataRange().getValues();
 
     eventName = eventName.toLowerCase().trim();
     lineName = lineName.toLowerCase().trim();
@@ -204,9 +204,9 @@ class Post {
     }
 
     var events = [];
-    for (var i = 0; i < eventsTableData.length; i++) {
-      var dEvent = eventsTableData[i][eventNameCol].toLowerCase();
-      var dLine = eventsTableData[i][lineNameCol].toLowerCase();
+    for (var i = 0; i < linksData.length; i++) {
+      var dEvent = linksData[i][eventNameCol].toLowerCase();
+      var dLine = linksData[i][lineNameCol].toLowerCase();
 
       var lineCheck = false;
       if (lineName != '') {
@@ -214,7 +214,7 @@ class Post {
       }
 
       if (eventName == dEvent || eventName == dLine || lineCheck) {
-        events.push(eventsTableData[i])
+        events.push(linksData[i])
       }
     }
 
@@ -226,7 +226,7 @@ class Post {
   }
 
   findLineLink(eventName, lineName) {
-    return this.findInLinksTable(eventName, lineName, "לינק");
+    return this.findInLinksTable(eventName, lineName, this.RecordsTableCols.RegistrationLink);
   }
 
   findInLinksTable(eventName, lineName, wantedColName) {
