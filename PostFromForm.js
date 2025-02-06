@@ -67,7 +67,7 @@ class Post {
         events.push("שיתוף אירוע: " + event[typeCol]);
       }
       else
-      events.push("אירוע מסוג: " + event[typeCol]);        
+        events.push("אירוע מסוג: " + event[typeCol]);
     }
     var res = "יש " + count + " אירועים ממתינים";
     if (count == 0) {
@@ -121,7 +121,7 @@ class Post {
 
   buildPost(row) {
     var temp = this.getEventAndLineNames(row)
-    if(temp.indexOf("2VS2")+1) {
+    if (temp.indexOf("2VS2") + 1) {
       return this.build2VS2Post(row);
     }
 
@@ -222,23 +222,7 @@ class Post {
   }
 
   findSystemApproved(eventName, lineName) {
-    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("לינקים");
-    var linksData = eventsSheet.getRange("A1:F").getValues();
-
-    var approvedCol = this._colNumberByLabel("מאושר ערוץ", linksData) - 1;
-
-    return this.findInLinksTable(eventName, lineName, "מאושר ערוץ");
-    var events = this.findEventOrLineInLinks(eventName, lineName);
-    if (events == LINK_TABLE_ERROR) {
-      return LINK_TABLE_ERROR;
-    }
-
-    if (events.length > 0) {
-      for (var i = 0; i < events.length; i++) {
-        if (events[i][approvedCol] != '')
-          return events[i][approvedCol];
-      }
-    }
+    return this.findInLinksTable(eventName, lineName, this.RecordsTableCols.SystemApproved);
   }
 
   findLineLink(eventName, lineName) {
@@ -369,40 +353,6 @@ class Post {
       return temp.join(" ");
     else
       return undefined;
-  }
-
-  emojiTags(tagsText) {
-    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("אימוג'ים");
-    var eventsData = eventsSheet.getDataRange().getValues();
-
-    var emojiCol = this._colNumberByLabel("אימוג'י", eventsData) - 1;
-    var tagsCol = this._colNumberByLabel("תגית", eventsData) - 1;
-    var tags = tagsText.split("#").map((value) => value.trim());
-
-    var emojis = [];
-
-    for (var i = 0; i < tags.length; i++) {
-      var tag = tags[i];
-      for (var j = 0; j < eventsData.length; j++) {
-        var emoji = eventsData[j][tagsCol];
-        if (tags[i] == eventsData[j][tagsCol]) {
-          emojis.push(eventsData[j][emojiCol])
-        }
-
-      }
-    }
-    return emojis.join(" ");
-
-    tags.forEach((currTag) => {
-      eventsData.forEach((value) => {
-        if (currTag == value[tagsCol]) {
-          emojis.push(value[emojiCol])
-        }
-      })
-    })
-
-
-    return '';
   }
   // #endregion Tags
 
@@ -575,12 +525,6 @@ class Post {
   // #endregion Date
 
   // #region Column Helpers
-  ColNumberByLabelWSheetName(label, sheetName) {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
-    var data = sheet.getDataRange().getValues();
-    return this._colNumberByLabel(label, data);
-  }
-
   ColNumberByLabel(label) {
     var sheet = SpreadsheetApp.getActiveSheet();
     var data = sheet.getDataRange().getValues();
@@ -592,6 +536,12 @@ class Post {
     if (col != -1) {
       return col + 1;
     }
+  }
+
+  ColNumberByLabelWSheetName(label, sheetName) {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+    var data = sheet.getDataRange().getValues();
+    return this._colNumberByLabel(label, data);
   }
 
   ColLetterByLabelWSheetName(label, sheetName) {
