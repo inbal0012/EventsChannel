@@ -14,18 +14,6 @@ const weekDays = {
   "שישי": 5,
   "שבת": 6
 }
-const WEEKLY_HEADER = `** סיכום האירועים הקרובים בקהילה: ** 
-▫ אירועים קבועים 
-✅ מאושר ע''י צוות הערוץ. נבדק האם תואמים לתגיות 
-💎 הנחה לעוקבי הערוץ`
-const WEEKLY_FOOTER = `
-* לפרסום אירועים בחינם ניתן להגיש בטופס שלנו כאן. 
-https://enmeventsil.fillout.com/submitevent
-** ניתן לחפש אירועים לפי תגית. ניתן למצוא את התגיות כאן. 
-https://t.me/ENMeventsisrael/122 
-*** הייתם באירוע? מדהים! ספרו לנו איך היה. 
-https://enmevents.fillout.com/eventsfeedback
-**** הפוסט אינו מתעדכן. מומלץ לגלול ולראות גם את האירועים החדשים שיפורסמו אחרי.`;
 
 const PostTypes = {
   "publish": "מארגן אירוע ורוצה לפרסם",
@@ -762,8 +750,8 @@ class Post {
 
     const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
 
-    var finalStr = WEEKLY_HEADER + DOUBLE_SPACE + allEvents +
-      DOUBLE_SPACE + WEEKLY_FOOTER + this.hotlineFooter();
+    var finalStr = this.config.WeeklySummary.HEADER + DOUBLE_SPACE + allEvents +
+      DOUBLE_SPACE + this.config.WeeklySummary.FOOTER + this.hotlineFooter();
     finalStr = "Updated at: " + t + "\n" + finalStr
     console.log(finalStr)
     return finalStr;
