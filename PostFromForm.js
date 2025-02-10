@@ -918,7 +918,7 @@ class Post {
       return value;
     }
     else {
-      days = this.keysByWeekday();
+      var days = this.keysByWeekday();
       var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
 
       var day = date.getDay();
@@ -944,7 +944,7 @@ class Post {
   createTitles() {
     var thisWeekend = this.createTitle("סופש הקרוב", this.thu, this.saturday);
 
-    var sunday = new Date(saturday.getTime() + 1 * milInDay)
+    var sunday = new Date(this.saturday.getTime() + 1 * milInDay)
     var nextWeek = this.createTitle("השבוע הקרוב", sunday, this.nextSat)
 
     var after = this.createTitle("אירועים הבאים");
