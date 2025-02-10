@@ -3,25 +3,9 @@
  */
 
 const DOUBLE_SPACE = "\n" + "\n";
-const LINK_TABLE_ERROR = "There's a problem with Links Table"
+const EMPTY_STRING = "";
+const SPACE_STRING = " ";
 const milInDay = 86400000;
-const weekDays = {
-  "ראשון": 0,
-  "שני": 1,
-  "שלישי": 2,
-  "רביעי": 3,
-  "חמישי": 4,
-  "שישי": 5,
-  "שבת": 6
-}
-
-const PostTypes = {
-  "publish": "מארגן אירוע ורוצה לפרסם",
-  "share": "נתקלתי באירוע ואני רוצה לשתף",
-  "cancel": "מארגן אירוע ומבקש להוריד פרסום",
-  "update": "מארגן אירוע ורוצה לעדכן",
-  "contact": "עוקב אחרי הערוץ ומבקש ליצור קשר"
-}
 
 // jshint esversion: 8
 if (typeof require !== 'undefined') {
@@ -36,13 +20,11 @@ class Post {
     Post.instance = this;
     this.config = new Config();
 
-    const EVENT_TABLE = "Sheet1";
-    this.enmEventsSheet = SpreadsheetApp.openByUrl(this.config.ENM_SHEET_URL).getSheetByName(EVENT_TABLE);
+    this.enmEventsSheet = SpreadsheetApp.openByUrl(this.config.ENM.SHEET_URL).getSheetByName(this.config.ENM.EVENT_TABLE);
     this.eventsData = this.enmEventsSheet.getDataRange().getValues();
 
-    const RECORDS_TABLE = "טבלת אירועים";
-    this.recordsSpreadsheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL);
-    this.recordsSheet = this.recordsSpreadsheet.getSheetByName(RECORDS_TABLE);
+    this.recordsSpreadsheet = SpreadsheetApp.openByUrl(this.config.INNER_DB.SHEET_URL);
+    this.recordsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.RECORDS_TABLE);
     this.recordsData = this.recordsSheet.getDataRange().getValues();
 
     this.today = this.setTodayDate();
@@ -52,6 +34,9 @@ class Post {
 
     this.ENMTableCols = this.config.ENMTableCols;
     this.RecordsTableCols = this.config.RecordsTableCols;
+    
+    this.text = this.config.Text.heb;
+    this.errors = this.config.Text.errors;
 
     return Post.instance;
   }
@@ -66,28 +51,30 @@ class Post {
     var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
     var typeCol = this.getEnmTableCol(this.ENMTableCols.PostType);
 
+    var PostTypes = this.config.PostTypes;
+
     // check only last 50 entries
     for (var i = eventsData.length - 1; i > (eventsData.length - 100); i--) {
       var event = eventsData[i];
 
-      if (event[doneCol] != '') {
+      if (event[doneCol] != EMPTY_STRING) {
         continue;
       }
       count++;
       if (event[typeCol] == PostTypes.publish) {
-        events.push(this.DateInddmmyyyy(event[dateCol]) + " - " + event[nameCol]);
+        events.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
       }
       else if (event[typeCol] == PostTypes.share) {
-        events.push("שיתוף אירוע: " + event[nameCol]);
+        events.push(this.text.ShareEvent + event[nameCol]);
       }
       else
-      events.push("אירוע מסוג: " + event[typeCol]);        
+      events.push(this.text.EventFromType + event[typeCol]);        
     }
-    var res = "יש " + count + " אירועים ממתינים";
+    var res = this.text.Theres + count + this.text.WaitingEvents;
     if (count == 0) {
-      return res + "!!!!!!\nכל הכבוד!!! 💪💪💪";
+      return res + this.text.WellDone;
     }
-    return res + ":\n" + events.join("\n");
+    return res + ":" + this.text.breakline + events.join(this.text.breakline);
   }
 
   createPost(ROW_NUM) {
@@ -96,8 +83,8 @@ class Post {
     var postEvent = this.switchPostType(row);
     var eventDescription = this.getEventDescription(row);
 
-    if (postEvent == "") {
-      postEvent = "Error parsing an event. look at the table for more info"
+    if (postEvent == EMPTY_STRING) {
+      postEvent = this.errors.ParsingEventError;
     }
 
     return [postEvent, eventDescription];
@@ -116,6 +103,7 @@ class Post {
     var cancleEventCol = this.getEnmTableCol(this.ENMTableCols.CancleEvent);
 
     var postType = row[postTypeCol]
+    var PostTypes = this.config.PostTypes;
 
     switch (postType) {
       case PostTypes.publish:
@@ -123,19 +111,19 @@ class Post {
       case PostTypes.share:
         return this.shareEvent(row);
       case PostTypes.cancel:
-        return postType + "\n" + row[cancleEventCol];
+        return postType + this.text.breakline + row[cancleEventCol];
       case PostTypes.update:
         return this.fixPost(row);
       case PostTypes.contact:
         return this.contactRequest(row);
       default:
-        return '';
+        return EMPTY_STRING;
     }
   }
 
   buildPost(row) {
     var temp = this.getEventAndLineNames(row)
-    if (temp.indexOf("2VS2") + 1) {
+    if (temp.indexOf(this.text.vs2Line.Name) + 1) {
       return this.build2VS2Post(row);
     }
 
@@ -148,15 +136,15 @@ class Post {
     var contactCol = this.getEnmTableCol(this.ENMTableCols.UpdateContact);
     var updatesCol = this.getEnmTableCol(this.ENMTableCols.Updates);
 
-    var event = row[linkCol] != "" ? row[linkCol] : "by " + row[lineCol]
-    return "fix Post: \n" + event + "\nContact: " + row[contactCol] + "\nNeeded Updates: " + row[updatesCol]
+    var event = row[linkCol] != EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol]
+    return this.text.FixPost + this.text.breakline + event + this.text.breakline + this.text.Contact + row[contactCol] + this.text.breakline + this.text.NeededUpdates + row[updatesCol]
   }
 
   contactRequest(row) {
     var contWay = this.getEnmTableCol(this.ENMTableCols.ContactWays)
     var contSubj = this.getEnmTableCol(this.ENMTableCols.ContactSubject);
 
-    return "Contact Request" + DOUBLE_SPACE + "דרך תקשורת: " + row[contWay] + DOUBLE_SPACE + "סיבה: " + row[contSubj];
+    return this.text.ContactRequest + DOUBLE_SPACE + this.text.Contact + row[contWay] + DOUBLE_SPACE + this.text.Reason + row[contSubj];
   }
 
   shareEvent(row) {
@@ -166,20 +154,20 @@ class Post {
 
     var postType = row[postTypeCol]
 
-    return postType + "\n" + row[eventNameCol] + " - " + row[linkToEventCol];
+    return postType + this.text.breakline + row[eventNameCol] + this.text.spacedHyphen + row[linkToEventCol];
   }
 
   parseChannelDiscount(row) {
     var isDiscountCol = this.getEnmTableCol(this.ENMTableCols.IsDiscount);
     var discountCol = this.getEnmTableCol(this.ENMTableCols.Discount);
 
-    if (!(row[isDiscountCol] === "כן")) {
-      return ""
+    if (!(row[isDiscountCol] === this.text.Yes)) {
+      return EMPTY_STRING
     }
 
-    var discountStr = "\n" + "💎 למגיעים דרך הערוץ: ";
+    var discountStr = this.text.breakline + this.text.ChannelDiscount;
     if (row[discountCol] < 1) {
-      discountStr += row[discountCol] * 100 + "% הנחה"
+      discountStr += row[discountCol] * 100 + this.text.PercentDiscount;
     }
     else
       discountStr += row[discountCol]
@@ -199,11 +187,11 @@ class Post {
       return systemApproval;
     }
 
-    return '';
+    return EMPTY_STRING;
   }
 
   findEventOrLineInLinks(eventName, lineName) {
-    var linksSheet = this.recordsSpreadsheet.getSheetByName("לינקים");
+    var linksSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.LINKS_TABLE);
     var linksData = linksSheet.getDataRange().getValues();
 
     eventName = eventName.toLowerCase().trim();
@@ -214,7 +202,7 @@ class Post {
 
     if (isNaN(eventNameCol)) {
       // throw new Error("problem with Links Table");
-      return LINK_TABLE_ERROR;
+      return this.errors.LinksTableError;
     }
 
     var events = [];
@@ -223,7 +211,7 @@ class Post {
       var dLine = linksData[i][lineNameCol].toLowerCase();
 
       var lineCheck = false;
-      if (lineName != '') {
+      if (lineName != EMPTY_STRING) {
         lineCheck = lineName == dLine;
       }
 
@@ -244,19 +232,19 @@ class Post {
   }
 
   findInLinksTable(eventName, lineName, wantedColName) {
-    var eventsSheet = SpreadsheetApp.openByUrl(this.config.INNER_DB_SHEET_URL).getSheetByName("לינקים");
-    var linksData = eventsSheet.getRange("A1:F").getValues();
-    
+    var linksSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.LINKS_TABLE);
+    var linksData = linksSheet.getDataRange().getValues();
+
     var wantedCol = this._colNumberByLabel(wantedColName, linksData) - 1;
 
     var events = this.findEventOrLineInLinks(eventName, lineName);
-    if (events == LINK_TABLE_ERROR) {
-      return LINK_TABLE_ERROR;
+    if (events == this.errors.LinksTableError) {
+      return this.errors.LinksTableError;
     }
 
     if (events.length > 0) {
       for (var i = 0; i < events.length; i++) {
-        if (events[i][wantedCol] != '')
+        if (events[i][wantedCol] != EMPTY_STRING)
           return events[i][wantedCol];
       }
     }
@@ -266,25 +254,26 @@ class Post {
     var dateCol = this.getEnmTableCol(this.ENMTableCols.Date)
     var date = row[dateCol]
     var day = date.getDay();
+    var text = this.text.vs2Line;
     if (day != 2)
-      return "2VS2 duplication"
+      return text.Duplication;
 
-    var temp = "האירועים הקרובים מבית 2VS2: \nאיפה: 2VS2 Swingers Club, פתח תקווה";
-    var tuesday = '#ללאאיזוןמגדרי\n **י THE OPEN LINE**\nמתי: יום שלישי, ' + this.DateInddmmyyyy(date) + ",  בשעה 22:00";
-    var thursday = '#באיזוןמגדרי\n **י UNLIMITED PARTY**\nמתי: יום חמישי, ' + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + ', בשעה 23:00';
-    var friday = '#באיזוןמגדרי\n**י PREMIUM PARTY FOR COUPLES**\nמתי: יום שישי, ' + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + ', בשעה 23:00';
-    var ending = 'לינק להרשמה \n http://tinyurl.com/2VS2Events\nמידע נוסף בתגובה הראשונה'
-    var tags = '#מסיבתסווינגרס #מסיבהליברלית #במועדון #אירועציבורי #מיניותפומבית #ללאמגבלתגיל #עםעישוןבפנים #ללאמתחםעישון'
+    var header = text.header;
+    var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour +"22:00";
+    var thursday = text.thursday + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + this.text.ComaHour +"23:00";
+    var friday = text.friday + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + this.text.ComaHour +"23:00";
+    var ending = text.ending;
+    var tags = text.tags;
 
-    return temp + DOUBLE_SPACE + tuesday + DOUBLE_SPACE + thursday + DOUBLE_SPACE + friday + DOUBLE_SPACE + ending + DOUBLE_SPACE + tags;
+    return header + DOUBLE_SPACE + tuesday + DOUBLE_SPACE + thursday + DOUBLE_SPACE + friday + DOUBLE_SPACE + ending + DOUBLE_SPACE + tags;
   }
 
   // #region Tags
   parseTags(row) {
     var eventTypeCol = this.getEnmTableCol(this.ENMTableCols.EventType);
 
-    var tags = '';
-    if (row[eventTypeCol] != '') {
+    var tags = EMPTY_STRING;
+    if (row[eventTypeCol] != EMPTY_STRING) {
       tags = this.createTagsForNewEvent(row);
     }
     else {
@@ -292,11 +281,11 @@ class Post {
     }
 
     if (!this.isTicketsAvailable(row)) {
-      tags = "#SaveTheDate" + "\n" + tags;
+      tags = this.text.SaveTheDateTag + this.text.breakline + tags;
     }
 
-    if (tags != '') {
-      tags = tags.replace(/[,]/g, " ");
+    if (tags != EMPTY_STRING) {
+      tags = tags.replace(/[,]/g, SPACE_STRING);
     }
 
     return tags;
@@ -310,7 +299,7 @@ class Post {
       tagsArr.push(row[eventTypeCol + i]);
     }
 
-    return tagsArr.join(" ");
+    return tagsArr.join(SPACE_STRING);
   }
 
   getTagsFromPastEvent(row) {
@@ -323,10 +312,11 @@ class Post {
     var northenCircleCol = this.getEnmTableCol(this.ENMTableCols.NorthenCircle);
 
     var regularLines = row[regularLinesCol];
-    var tags = '';
+    var lines = this.text.regularLines;
+    var tags = EMPTY_STRING;
     switch (regularLines) {
-      case "אני לא אחד מהליינים הבאים":
-        if (row[linkOrTextCol] == "לינק לפוסט") {
+      case lines.NoneOfTheAbove:
+        if (row[linkOrTextCol] == this.text.LinkToPost) {
           var postLink = row[postLinkCol];
           return this.getTagsByPostLink(postLink);
         }
@@ -334,23 +324,23 @@ class Post {
           tags = row[postTextCol]
         }
         break;
-      case "Wild Ginger":
+      case lines.WildGinger:
         tags = row[wildGingerCol]
         break;
-      case "MOJO":
+      case lines.MOJO:
         tags = row[mojoCol]
         break;
-      case "החוג הצפוני":
+      case lines.NorthenCircle:
         tags = row[northenCircleCol]
         break;
       default:
-        if (regularLines.match('t.me/ENMeventsisrael') != undefined) {
+        if (regularLines.match(this.text.ChannelLink) != undefined) {
           return this.getTagsByPostLink(regularLines);
         }
         tags = regularLines;
     }
 
-    if (tags != '')
+    if (tags != EMPTY_STRING)
       tags = this.processTags(tags);
 
     return tags;
@@ -367,25 +357,27 @@ class Post {
   processTags(text) {
     var temp = text.match(/(#\S+)/g);
     if (temp != undefined && temp != null)
-      return temp.join(" ");
+      return temp.join(SPACE_STRING);
     else
       return undefined;
   }
   // #endregion Tags
 
   setReferanceOnly(row) {
+    // TODO upgrade
     var lineNameCol = this.getEnmTableCol(this.ENMTableCols.LineName);
+    var context = this.text.ReferanceOnly;
 
-    if (row[lineNameCol] == "דקדנס" || row[lineNameCol] == "Sin Ethics") {
-      return "\n" + "שימו לב - ההגעה לאירוע היא ע''י ממליצים בלבד. אדם שיענה שהגיע דרך הערוץ לא יאושר.";
+    if (context.Lines.includes(row[lineNameCol])) {
+      return this.text.breakline + context.text;
     }
-    return '';
+    return EMPTY_STRING;
   }
 
   isTicketsAvailable(row) {
     var isTicketsAvailableCol = this.getEnmTableCol(this.ENMTableCols.IsTicketsAvailable);
 
-    if (row[isTicketsAvailableCol] == "#SaveTheDate")
+    if (row[isTicketsAvailableCol] == this.text.SaveTheDateTag)
       return false;
     return true;
 
@@ -398,13 +390,13 @@ class Post {
   }
 
   parseRegistration(row) {
-    var link = this.parseRegistrationLink(row) + '\n'
+    var link = this.parseRegistrationLink(row) + this.text.breakline;
     var temp = this.getEventDescription(row);
     if (temp) {
-      link += "לינק להרשמה \nפרטים נוספים בתגובה הראשונה"
+      link += this.text.registrationLinkWithDetailsInFirstComment;
     }
     else {
-      link += "לינק להרשמה ופרטים נוספים"
+      link += this.text.registrationLinkWithDetails;
     }
 
     return link;
@@ -414,7 +406,7 @@ class Post {
   parseRegistrationLink(row) {
     var regLinkCol = this.getEnmTableCol(this.ENMTableCols.RegistrationLink);
     var moreInfoCol = this.getEnmTableCol(this.ENMTableCols.MoreInfo);
-    var link = 'Original: \n';
+    var link = this.text.OriginalLink;
 
     if (this.isTicketsAvailable(row)) {
       link += row[regLinkCol];
@@ -425,7 +417,7 @@ class Post {
 
     var tiny = this.findLineLink(...this.getEventAndLineNames(row))
     if (tiny != undefined) {
-      link += "\nTiny: \n" + tiny;
+      link += this.text.TinyLink + tiny;
     }
 
     return link;
@@ -435,8 +427,8 @@ class Post {
     var additionalsNotesCol = this.getEnmTableCol(this.ENMTableCols.AdditionalsNotes);
 
     var notes = row[additionalsNotesCol];
-    if (notes != '')
-      notes = "**Additionals Notes:** \n" + notes + "\n"
+    if (notes != EMPTY_STRING)
+      notes = this.text.telegramBold +  this.text.AdditionalsNotes + this.text.telegramBold + notes + this.text.breakline
     return notes;
   }
 
@@ -444,7 +436,7 @@ class Post {
     var eventDescriptionCol = this.getEnmTableCol(this.ENMTableCols.EventDescription);
 
     var eventDescription = row[eventDescriptionCol];
-    if (eventDescription != '') {
+    if (eventDescription != EMPTY_STRING) {
       return eventDescription
     }
   }
@@ -453,10 +445,10 @@ class Post {
     var paidPostCol = this.getEnmTableCol(this.ENMTableCols.PaidPost);
     var paidDetailsCol = this.getEnmTableCol(this.ENMTableCols.PaidDetails);
 
-    if (row[paidPostCol] == "כן")
-      return "‼️🤑 עבור: " + row[paidDetailsCol] + "\n"
+    if (row[paidPostCol] == this.text.Yes)
+      return this.text.PaidPost + row[paidDetailsCol] + this.text.breakline
     else
-      return ''
+      return EMPTY_STRING
   }
 
   getEventAndLineNames(row) {
@@ -473,7 +465,7 @@ class Post {
     var name = this.parseNameRow(row);
     var date = this.parseDate(row);
 
-    var name_place_date = name + "\n" + "מיקום: " + row[locationCol] + "\n" + date;
+    var name_place_date = name + this.text.breakline + this.text.Location + row[locationCol] + this.text.breakline + date;
     return name_place_date;
   }
 
@@ -481,7 +473,7 @@ class Post {
     var systemApproved = this.parseSystemApproved(row)
     var name = this.parseName(row);
     var line = this.parseLine(...this.getEventAndLineNames(row));
-    return systemApproved + "**" + name + "**" + line;
+    return systemApproved + this.text.telegramBold + name + this.text.telegramBold + line;
   }
 
   parseName(row) {
@@ -500,15 +492,15 @@ class Post {
   }
 
   parseLine(eventName, lineName) {
-    if (lineName == '')
-      return '';
+    if (lineName == EMPTY_STRING)
+      return EMPTY_STRING;
 
     var regExp = new RegExp(lineName, "gi");
     var lineMatch = regExp.exec(eventName)
     if (lineMatch != null)
-      return '';
+      return EMPTY_STRING;
 
-    return " מבית " + lineName;
+    return SPACE_STRING + this.text.By + lineName;
   }
 
   // #region Date
@@ -518,26 +510,26 @@ class Post {
     var dayCol = this.getEnmTableCol(this.ENMTableCols.Day);
     var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
 
-    if (row[isParmanentCol] == "כן") {
-      return "מתי: כל יום " + row[daysCol] + this.parseHour(row);
+    if (row[isParmanentCol] == this.text.Yes) {
+      return this.text.When + this.text.EveryDay + row[daysCol] + this.parseHour(row);
     }
-    return "מתי: יום " + row[dayCol] + ", " + this.DateInddmmyyyy(row[dateCol]) + this.parseHour(row);
+    return  this.text.When + this.text.Day + row[dayCol] + this.text.coma + this.DateInddmmyyyy(row[dateCol]) + this.parseHour(row);
 
   }
 
   parseHour(row) {
     var hourCol = this.getEnmTableCol(this.ENMTableCols.Hour);
 
-    if (row[hourCol] != '')
-      return ", בשעה " + row[hourCol];
+    if (row[hourCol] != EMPTY_STRING)
+      return this.text.ComaHour + row[hourCol];
     else
-      return '';
+      return EMPTY_STRING;
 
   }
 
   DateInddmmyyyy(i_date) {
     var curDate = new Date(i_date);
-    return curDate.toLocaleDateString("en-GB");
+    return curDate.toLocaleDateString(this.text.localesDateString);
   }
   // #endregion Date
 
@@ -572,7 +564,7 @@ class Post {
   }
 
   columnToLetter(column) {
-    var temp, letter = '';
+    var temp, letter = EMPTY_STRING;
     while (column > 0) {
       temp = (column - 1) % 26;
       letter = String.fromCharCode(temp + 65) + letter;
@@ -583,23 +575,19 @@ class Post {
   // #endregion Column Helpers
 
   savePost() {
-    const FORM_SHEET_NAME = "פירסור פוסט לטבלה";
-    const DATA_RANGE = 'A4:A18';
-
-    var formSheet = this.recordsSpreadsheet.getSheetByName(FORM_SHEET_NAME);
-
-    var data = this.getData(formSheet, DATA_RANGE);
+    var formSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.PARSE_POST.SHEET);
+    var data = this.getData(formSheet, this.config.INNER_DB.PARSE_POST.RANGE);
 
     var postLink = this.getPostLink(formSheet);
     if (!this.validatePostLink(postLink)) {
-      Browser.msgBox("Fill the post link too!");
+      Browser.msgBox(this.errors.NoPostLink);
       return;
     }
 
     var location = this.extractLocation(data);
     var eventLink = this.extractEventLink(data, formSheet);
     if (!this.validateEventLink(eventLink)) {
-      Browser.msgBox("Fill the registration link too!");
+      Browser.msgBox(this.errors.NoRegistrationLink);
       return;
     }
 
@@ -616,11 +604,11 @@ class Post {
 
   // #region submitEvent
   extractLocation(data) {
-    var locationRow = this.findRowInPost("מיקום", data);
+    var locationRow = this.findRowInPost(this.text.Location, data);
     if (locationRow !== -1) {
-      return data[locationRow].replace("מיקום: ", "");
+      return data[locationRow].replace(this.text.Location, EMPTY_STRING);
     }
-    return "";
+    return EMPTY_STRING;
   }
 
   validateEventLink(eventLink) {
@@ -631,8 +619,8 @@ class Post {
   }
 
   extractEventLink(data, formSheet) {
-    var eventLink = formSheet.getRange('B2').getCell(1, 1).getValue();
-    if (eventLink != "") {
+    var eventLink = formSheet.getRange(this.config.INNER_DB.PARSE_POST.REG_LINK_CELL).getCell(1, 1).getValue();
+    if (eventLink != EMPTY_STRING) {
       return eventLink;
     }
 
@@ -643,16 +631,16 @@ class Post {
 
     var eventLink = data[eventLinkRowNum]
 
-    if (eventLink.includes("(")) {
-      var temp = eventLink.split("(")
-      eventLink = "";
+    if (eventLink.includes(this.text.openBracket)) {
+      var temp = eventLink.split(this.text.openBracket)
+      eventLink = EMPTY_STRING;
       if (temp.length < 2) {
-        temp = data[this.findRowInPost("(", data)].split("(")
-        temp = temp[1].split(")")
+        temp = data[this.findRowInPost(this.text.openBracket, data)].split(this.text.openBracket)
+        temp = temp[1].split(this.text.closeBracket)
         eventLink = temp[0];
       }
       else {
-        eventLink = temp[1].replace(")", "")
+        eventLink = temp[1].replace(this.text.closeBracket, EMPTY_STRING)
       }
     }
 
@@ -661,14 +649,14 @@ class Post {
   }
 
   extractDayDateAndHour(data) {
-    var timeRaw = data[this.findRowInPost("מתי", data)]
+    var timeRaw = data[this.findRowInPost(this.text.When, data)]
 
-    var temp = timeRaw.replace("מתי: ", "").split(",")
-    var day = temp[0].replace("יום ", "")
+    var temp = timeRaw.replace(this.text.When, EMPTY_STRING).split(this.text.coma)
+    var day = temp[0].replace(this.text.Day, EMPTY_STRING)
     var date = temp[1].trim()
-    var hour = ""
+    var hour = EMPTY_STRING
     if (temp.length > 2) {
-      hour = temp[2].replace("בשעה ", "")
+      hour = temp[2].replace(this.text.Hour, EMPTY_STRING)
     }
 
     return [day, date, hour];
@@ -677,8 +665,8 @@ class Post {
   extractEventAndLineName(data) {
     var nameRaw = data[0]
 
-    var temp = nameRaw.split("מבית ")
-    var name = temp[0], lineName = ""
+    var temp = nameRaw.split(this.text.By)
+    var name = temp[0], lineName = EMPTY_STRING
     if (temp.length > 1) {
       var lineName = temp[1];
     }
@@ -692,17 +680,17 @@ class Post {
   extractTags(data) {
     var tagsRow = this.findRowInPost("#", data);
     var tags = data[tagsRow];
-    if (tags.includes("SaveTheDate")) {
-      tags += " " + data[tagsRow + 1];
+    if (tags.includes(this.text.SaveTheDateTag)) {
+      tags += SPACE_STRING + data[tagsRow + 1];
     }
 
     return tags;
   }
 
   extractExstraData(data) {
-    var eventLinkRowNum = this.findRowInPost("להרשמה", data)
+    var eventLinkRowNum = this.findRowInPost(this.text.Register, data)
     var exstraData = data[eventLinkRowNum + 1]
-    if (exstraData.includes("פרטים")) {
+    if (exstraData.includes(this.text.Details)) {
       exstraData = data[eventLinkRowNum + 2]
     }
 
@@ -710,16 +698,12 @@ class Post {
   }
 
   addToTable(postArray) {
-    const FORM_SHEET_NAME = "פירסור פוסט לטבלה";
-    const FORM_RANGE = 'A2:J2';
-    const EVENT_TABLE = "טבלת אירועים";
-    const DATA_RANGE = 'A4:A18';
-    var formSheet = this.recordsSpreadsheet.getSheetByName(FORM_SHEET_NAME);
-    var recordsSheet = this.recordsSpreadsheet.getSheetByName(EVENT_TABLE);
+    var formSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.PARSE_POST.SHEET);
+    var recordsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.RECORDS_TABLE);
 
     recordsSheet.appendRow(postArray);
-    formSheet.getRange(DATA_RANGE).clearContent();
-    formSheet.getRange(FORM_RANGE).clearContent();
+    formSheet.getRange(this.config.INNER_DB.PARSE_POST.RANGE).clearContent();
+    formSheet.getRange(this.config.INNER_DB.PARSE_POST.LINKS_RANGE).clearContent();
   }
 
   getData(sheet, range) {
@@ -727,11 +711,11 @@ class Post {
   }
 
   getPostLink(sheet) {
-    return sheet.getRange('A2').getCell(1, 1).getValue();
+    return sheet.getRange(this.config.INNER_DB.PARSE_POST.POST_LINK_CELL).getCell(1, 1).getValue();
   }
 
   validatePostLink(postLink) {
-    return postLink !== "";
+    return postLink !== EMPTY_STRING;
   }
   // #endregion submitEvent
 
@@ -750,17 +734,16 @@ class Post {
 
     const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
 
-    var finalStr = this.config.WeeklySummary.HEADER + DOUBLE_SPACE + allEvents +
-      DOUBLE_SPACE + this.config.WeeklySummary.FOOTER + this.hotlineFooter();
-    finalStr = "Updated at: " + t + "\n" + finalStr
+    var finalStr = this.text.WeeklySummary.HEADER + DOUBLE_SPACE + allEvents +
+      this.text.WeeklySummary.FOOTER + this.hotlineFooter();
+    finalStr = this.text.UpdatedAt + t + this.text.breakline + finalStr
     console.log(finalStr)
     return finalStr;
   }
 
   saveSummery() {
-    const WEEKLY_SUMMERY_TABLE = "סיכום שבועי"
     var summery = this.WEEKLY_SUMMERY();
-    var wsSheet = this.recordsSpreadsheet.getSheetByName(WEEKLY_SUMMERY_TABLE);
+    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
 
     var cell = wsSheet.getRange(2, 1);
     cell.setValue(summery);
@@ -768,10 +751,9 @@ class Post {
   }
 
   hotlineFooter() {
-    var hotline = ''
+    var hotline = EMPTY_STRING
     if (this.today.getDate() < 8) {
-      hotline = DOUBLE_SPACE + `אנו מאחלים שאף אחד לא יצטרך זאת, אך לעת צורך: 
-   קו סיוע במקרי פגיעה מינית - https://yahasim.org.il/line`;
+      hotline = DOUBLE_SPACE + this.text.Hotline;
     }
     return hotline;
   }
@@ -783,7 +765,7 @@ class Post {
 
     var titlesStr = this.createTitles();
 
-    var finalStr = '';
+    var finalStr = EMPTY_STRING;
     for (var i = 0; i < groupsStr.length; i++) {
       finalStr += titlesStr[i] + groupsStr[i] + DOUBLE_SPACE
     }
@@ -800,7 +782,7 @@ class Post {
 
     this.recordsData.forEach((value) => {
       var curDate = new Date(value[dateCol]);
-      if (value[dateCol] === "אירוע קבוע") {
+      if (value[dateCol] == this.text.PermanentEvent) {
         var day = value[dayCol];
         this.fillEventsDict(permEvents, day, value[prepCol]);
       }
@@ -813,7 +795,7 @@ class Post {
 
         events = this.setEventGroup(curDate, thisWeekend, nextWeek, after)
 
-        var curDateStr = curDate.toLocaleDateString("en-GB");
+        var curDateStr = curDate.toLocaleDateString(this.text.localesDateString);
         this.fillEventsDict(events, curDateStr, value[prepCol]);
       }
     })
@@ -823,23 +805,22 @@ class Post {
 
   allKeys(events) {
     var datesKeys = Object.keys(events);
-    if (!datesKeys[0].includes("/")) {
-      return Object.keys(weekDays);
+    if (!datesKeys[0].includes(this.text.dateDividor)) {
+      return Object.keys(this.text.weekDays);
     }
 
     datesKeys.sort((a, b) => {
       // '01/03/2014'.split('/')
       // gives ["01", "03", "2024"]
-      a = a.split('/');
-      b = b.split('/');
+      a = a.split(this.text.dateDividor);
+      b = b.split(this.text.dateDividor);
       return a[1] - b[1] || a[0] - b[0];
     });
     return datesKeys;
   }
 
   setTodayDate() {
-    const WEEKLY_SUMMERY_TABLE = "סיכום שבועי"
-    var wsSheet = this.recordsSpreadsheet.getSheetByName(WEEKLY_SUMMERY_TABLE);
+    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
 
     var thuToggle = wsSheet.getRange(1, 2).getCell(1, 1).getValue();
     var today = new Date();
@@ -868,33 +849,21 @@ class Post {
     if (dict[key] == undefined) {
       dict[key] = new Array();
     }
-    if (data != '')
+    if (data != EMPTY_STRING)
       dict[key].push(data);
   }
 
-  keysByDate(events) {
-    var datesKeys = Object.keys(events);
-    datesKeys.sort((a, b) => {
-      // '01/03/2014'.split('/')
-      // gives ["01", "03", "2024"]
-      a = a.split('/');
-      b = b.split('/');
-      return a[1] - b[1] || a[0] - b[0];
-    });
-    return datesKeys;
-  }
-
   keysByWeekday() {
-    return Object.keys(weekDays);
+    return Object.keys(this.text.weekDays);
   }
 
   concatenateKeysAndEvents(keys, events) {
-    var eventsStr = '';
+    var eventsStr = EMPTY_STRING;
     keys.forEach((value, index) => {
       if (events[value] != undefined) {
-        eventsStr += this.dateAndDay(value) + "\n";
-        eventsStr += events[value].join("\n");
-        eventsStr += "\n";
+        eventsStr += this.dateAndDay(value) + this.text.breakline;
+        eventsStr += events[value].join(this.text.breakline);
+        eventsStr += this.text.breakline;
       }
     })
 
@@ -902,7 +871,7 @@ class Post {
   }
 
   dateAndDay(value) {
-    if (value in weekDays) {
+    if (value in this.text.weekDays) {
       return value;
     }
     else {
@@ -910,14 +879,14 @@ class Post {
       var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
 
       var day = date.getDay();
-      return value + ", יום " + days[day];
+      return value + this.text.coma + this.text.Day + days[day];
     }
   }
   // #endregion summery helper functions
 
   // #region Validations
   isValidDate(curDate) {
-    if (curDate == "Invalid Date")
+    if (curDate == this.errors.InvalidDate)
       return false;
 
     return true;
@@ -930,24 +899,25 @@ class Post {
 
   // #region Titles
   createTitles() {
-    var thisWeekend = this.createTitle("סופש הקרוב", this.thu, this.saturday);
+    var text = this.text.Titles;
+    var thisWeekend = this.createTitle(text.ThisWeekend, this.thu, this.saturday);
 
     var sunday = new Date(this.saturday.getTime() + 1 * milInDay)
-    var nextWeek = this.createTitle("השבוע הקרוב", sunday, this.nextSat)
+    var nextWeek = this.createTitle(text.NextWeek, sunday, this.nextSat)
 
-    var after = this.createTitle("אירועים הבאים");
+    var after = this.createTitle(text.FutureEvents);
 
-    var permEvents = this.createTitle("אירועים קבועים");
+    var permEvents = this.createTitle(text.PermanentEvents);
 
     return [thisWeekend, nextWeek, after, permEvents];
   }
 
   createTitle(text, startDate = null, endDate = null) {
-    return "** --- " + text + (startDate != null ? this.titleDates(startDate, endDate) : '') + " --- **" + DOUBLE_SPACE;
+    return this.text.telegramBold + this.text.titleMarker + text + (startDate != null ? this.titleDates(startDate, endDate) : EMPTY_STRING) + this.text.titleMarker + this.text.telegramBold + DOUBLE_SPACE;
   }
 
   titleDates(startDate, endDate) {
-    return " (" + startDate.getDate() + (startDate.getMonth() == endDate.getMonth() ? '' : "/" + (startDate.getMonth() + 1)) + "-" + endDate.toLocaleDateString("en-GB") + ")"
+    return SPACE_STRING + this.text.openBracket + startDate.getDate() + (startDate.getMonth() == endDate.getMonth() ? EMPTY_STRING : this.text.dateDividor + (startDate.getMonth() + 1)) + this.text.hyphen + endDate.toLocaleDateString(this.text.localesDateString) + this.text.closeBracket
   }
   // #endregion Titles
 }

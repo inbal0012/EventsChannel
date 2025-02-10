@@ -21,14 +21,11 @@ function parseForm() {
   const telegram = new Telegram();
   const config = new Config()
 
-  const EVENT_TABLE = "Sheet1";
-  const DATA_RANGE = 'A1:BW';
-
-  var eventsSheet = SpreadsheetApp.openByUrl(config.ENM_SHEET_URL).getSheetByName(EVENT_TABLE);
+  var eventsSheet = SpreadsheetApp.openByUrl(config.ENM.SHEET_URL).getSheetByName(config.ENM.EVENT_TABLE);
   var eventsData = eventsSheet.getDataRange().getValues();
 
-  var doneCol = post._colNumberByLabel("Done?", eventsData) - 1;    // Sheet1!A
-  var inbalPostCol = post._colNumberByLabel("פוסט ענבל", eventsData) - 1;
+  var doneCol = post.getEnmTableCol(config.ENMTableCols.Done);
+  var inbalPostCol = post.getEnmTableCol(config.ENMTableCols.InbalPost);;
 
   // check only last 50 entries
   for (var i = eventsData.length - 1; i > (eventsData.length - 50); i--) {
@@ -55,27 +52,13 @@ function dailySummary() {
 
 function weeklySchduleReminder() {
   const telegram = new Telegram();
-  telegram.sendTelegramMessageToAdmin("Girls (and Guy)\nHere's a reminder to verify the team's weekly");
+  telegram.sendTelegramMessageToAdmin(telegram.config.Text.heb.WeeklySchduleReminder);
 
 }
 
 function chatRulesMessage() {
   const telegram = new Telegram();
-  telegram.sendTelegramMessageToGroup(`
-    לכל החדשים -
-    ברוכים הבאים לקבוצת הצ'אט של ערוץ האירועים
-    אנא קראו את חוקי הקבוצה בעיון
-    
-    קישור לערוץ:  
-    https://t.me/ENMeventsisrael
-    
-    קישור לחוקים: 
-    https://t.me/ENMeventsisraelchat/1829
-    
-    שימו לב!
-    אם פנו אליכם ללא אישור, או שיש לכם צורך אחר ליצירת קשר עם הצוות ניתן לפנות בטופס שלנו:
-    https://enmeventsil.fillout.com/submitevent`);
-
+  telegram.sendTelegramMessageToGroup(telegram.config.Text.heb.ChatRules);
 }
 
 function testSendTelegramMessageToAdmin() {
