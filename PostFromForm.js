@@ -428,7 +428,7 @@ class Post {
 
     var notes = row[additionalsNotesCol];
     if (notes != EMPTY_STRING)
-      notes = this.text.telegramBold +  this.text.AdditionalsNotes + this.text.telegramBold + notes + this.text.breakline
+      notes = this.text.telegramBold +  this.text.AdditionalsNotes + this.text.telegramBold + this.text.breakline + notes + this.text.breakline
     return notes;
   }
 

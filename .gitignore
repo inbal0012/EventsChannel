@@ -1,1 +1,9 @@
 config.js
+
+# https://www.npmjs.com/package/@google/clasp
+# https://www.youtube.com/watch?v=alXK8xicKZc&ab_channel=CodingWithNibesh
+# https://developers.google.com/apps-script/api/quickstart/python
+# https://chromewebstore.google.com/detail/google-apps-script-github/lfjcgcmkmjjlieihflfhjopckgpelofo?pli=1
+# https://developers.google.com/apps-script/api/guides/rest/quickstart/nodejs
+# https://developers.google.com/sheets
+/node_modules
