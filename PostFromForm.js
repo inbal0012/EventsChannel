@@ -77,6 +77,17 @@ class Post {
     return res + ":" + this.text.breakline + events.join(this.text.breakline);
   }
 
+  // #region Get from Table
+  getEnmTableCol(colName) {
+    return this._colNumberByLabel(colName, this.eventsData) - 1;
+  }
+
+  getRecordsTableCol(colName) {
+    return this._colNumberByLabel(colName, this.recordsData) - 1;
+  }
+  // #endregion Get from Table
+
+  // #region Create Post
   createPost(ROW_NUM) {
     var row = this.eventsData[ROW_NUM];
 
@@ -88,14 +99,6 @@ class Post {
     }
 
     return [postEvent, eventDescription];
-  }
-
-  getEnmTableCol(colName) {
-    return this._colNumberByLabel(colName, this.eventsData) - 1;
-  }
-
-  getRecordsTableCol(colName) {
-    return this._colNumberByLabel(colName, this.recordsData) - 1;
   }
 
   switchPostType(row) {
@@ -119,15 +122,6 @@ class Post {
       default:
         return EMPTY_STRING;
     }
-  }
-
-  buildPost(row) {
-    var temp = this.getEventAndLineNames(row)
-    if (temp.indexOf(this.text.vs2Line.Name) + 1) {
-      return this.build2VS2Post(row);
-    }
-
-    return this.parsePaidPost(row) + this.parseName_place_date(row) + DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
   }
 
   fixPost(row) {
@@ -156,6 +150,16 @@ class Post {
 
     return postType + this.text.breakline + row[eventNameCol] + this.text.spacedHyphen + row[linkToEventCol];
   }
+
+  buildPost(row) {
+    var temp = this.getEventAndLineNames(row)
+    if (temp.indexOf(this.text.vs2Line.Name) + 1) {
+      return this.build2VS2Post(row);
+    }
+
+    return this.parsePaidPost(row) + this.parseName_place_date(row) + DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
+  }
+  // #endregion Create Post
 
   parseChannelDiscount(row) {
     var isDiscountCol = this.getEnmTableCol(this.ENMTableCols.IsDiscount);
@@ -190,6 +194,25 @@ class Post {
     return EMPTY_STRING;
   }
 
+  build2VS2Post(row) {
+    var dateCol = this.getEnmTableCol(this.ENMTableCols.Date)
+    var date = row[dateCol]
+    var day = date.getDay();
+    var text = this.text.vs2Line;
+    if (day != 2)
+      return text.Duplication;
+
+    var header = text.header;
+    var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour +"22:00";
+    var thursday = text.thursday + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + this.text.ComaHour +"23:00";
+    var friday = text.friday + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + this.text.ComaHour +"23:00";
+    var ending = text.ending;
+    var tags = text.tags;
+
+    return header + DOUBLE_SPACE + tuesday + DOUBLE_SPACE + thursday + DOUBLE_SPACE + friday + DOUBLE_SPACE + ending + DOUBLE_SPACE + tags;
+  }
+
+  // #region Links Table
   findEventOrLineInLinks(eventName, lineName) {
     var linksSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.LINKS_TABLE);
     var linksData = linksSheet.getDataRange().getValues();
@@ -249,24 +272,7 @@ class Post {
       }
     }
   }
-
-  build2VS2Post(row) {
-    var dateCol = this.getEnmTableCol(this.ENMTableCols.Date)
-    var date = row[dateCol]
-    var day = date.getDay();
-    var text = this.text.vs2Line;
-    if (day != 2)
-      return text.Duplication;
-
-    var header = text.header;
-    var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour +"22:00";
-    var thursday = text.thursday + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + this.text.ComaHour +"23:00";
-    var friday = text.friday + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + this.text.ComaHour +"23:00";
-    var ending = text.ending;
-    var tags = text.tags;
-
-    return header + DOUBLE_SPACE + tuesday + DOUBLE_SPACE + thursday + DOUBLE_SPACE + friday + DOUBLE_SPACE + ending + DOUBLE_SPACE + tags;
-  }
+  // #endregion Links Table
 
   // #region Tags
   parseTags(row) {
@@ -383,6 +389,7 @@ class Post {
 
   }
 
+  // #region Registration Section
   parseRegistrationSection(row) {
     var link = this.parseRegistration(row)
     var channelDiscount = this.parseChannelDiscount(row)
@@ -422,6 +429,7 @@ class Post {
 
     return link;
   }
+  // #endregion Registration Section
 
   additionalsNotes(row) {
     var additionalsNotesCol = this.getEnmTableCol(this.ENMTableCols.AdditionalsNotes);
@@ -451,6 +459,7 @@ class Post {
       return EMPTY_STRING
   }
 
+  // #region Name and Line
   getEventAndLineNames(row) {
     var eventNameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
     var lineNameCol = this.getEnmTableCol(this.ENMTableCols.LineName);
@@ -502,6 +511,7 @@ class Post {
 
     return SPACE_STRING + this.text.By + lineName;
   }
+  // #endregion Name and Line
 
   // #region Date
   parseDate(row) {
@@ -576,7 +586,7 @@ class Post {
 
   savePost() {
     var formSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.PARSE_POST.SHEET);
-    var data = this.getData(formSheet, this.config.INNER_DB.PARSE_POST.RANGE);
+    var data = formSheet.getRange(this.config.INNER_DB.PARSE_POST.RANGE).getValues();
 
     var postLink = this.getPostLink(formSheet);
     if (!this.validatePostLink(postLink)) {
@@ -602,20 +612,25 @@ class Post {
     this.addToTable(postArray);
   }
 
-  // #region submitEvent
+  // #region Submit Event
+  validateEventLink(eventLink) {
+    if (eventLink == undefined) {
+      return false
+    }
+    return true;
+  }
+
+  validatePostLink(postLink) {
+    return postLink !== EMPTY_STRING;
+  }
+  
+  // #region Extract Data
   extractLocation(data) {
     var locationRow = this.findRowInPost(this.text.Location, data);
     if (locationRow !== -1) {
       return data[locationRow].replace(this.text.Location, EMPTY_STRING);
     }
     return EMPTY_STRING;
-  }
-
-  validateEventLink(eventLink) {
-    if (eventLink == undefined) {
-      return false
-    }
-    return true;
   }
 
   extractEventLink(data, formSheet) {
@@ -696,6 +711,7 @@ class Post {
 
     return exstraData;
   }
+  // #endregion Extract Data
 
   addToTable(postArray) {
     var formSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.PARSE_POST.SHEET);
@@ -706,18 +722,9 @@ class Post {
     formSheet.getRange(this.config.INNER_DB.PARSE_POST.LINKS_RANGE).clearContent();
   }
 
-  getData(sheet, range) {
-    return sheet.getRange(range).getValues().flat();
-  }
-
   getPostLink(sheet) {
     return sheet.getRange(this.config.INNER_DB.PARSE_POST.POST_LINK_CELL).getCell(1, 1).getValue();
   }
-
-  validatePostLink(postLink) {
-    return postLink !== EMPTY_STRING;
-  }
-  // #endregion submitEvent
 
   findRowInPost(searchWord, post) {
     for (var i = 0; i < post.length; i++) {
@@ -728,10 +735,11 @@ class Post {
 
     return -1;
   }
+  // #endregion Submit Event
 
   WEEKLY_SUMMERY() {
     var allEvents = this.parseAllEvents()
-
+    
     const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
 
     var finalStr = this.text.WeeklySummary.HEADER + DOUBLE_SPACE + allEvents +
