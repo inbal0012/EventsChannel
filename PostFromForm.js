@@ -586,7 +586,7 @@ class Post {
 
   savePost() {
     var formSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.PARSE_POST.SHEET);
-    var data = formSheet.getRange(this.config.INNER_DB.PARSE_POST.RANGE).getValues();
+    var data = formSheet.getRange(this.config.INNER_DB.PARSE_POST.RANGE).getValues().flat();
 
     var postLink = this.getPostLink(formSheet);
     if (!this.validatePostLink(postLink)) {
