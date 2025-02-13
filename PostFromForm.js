@@ -34,7 +34,7 @@ class Post {
 
     this.ENMTableCols = this.config.ENMTableCols;
     this.RecordsTableCols = this.config.RecordsTableCols;
-    
+
     this.text = this.config.Text.heb;
     this.errors = this.config.Text.errors;
 
@@ -68,7 +68,7 @@ class Post {
         events.push(this.text.ShareEvent + event[nameCol]);
       }
       else
-      events.push(this.text.EventFromType + event[typeCol]);        
+        events.push(this.text.EventFromType + event[typeCol]);
     }
     var res = this.text.Theres + count + this.text.WaitingEvents;
     if (count == 0) {
@@ -161,6 +161,7 @@ class Post {
   }
   // #endregion Create Post
 
+  // #region Build Post
   parseChannelDiscount(row) {
     var isDiscountCol = this.getEnmTableCol(this.ENMTableCols.IsDiscount);
     var discountCol = this.getEnmTableCol(this.ENMTableCols.Discount);
@@ -203,9 +204,9 @@ class Post {
       return text.Duplication;
 
     var header = text.header;
-    var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour +"22:00";
-    var thursday = text.thursday + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + this.text.ComaHour +"23:00";
-    var friday = text.friday + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + this.text.ComaHour +"23:00";
+    var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour + "22:00";
+    var thursday = text.thursday + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + this.text.ComaHour + "23:00";
+    var friday = text.friday + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + this.text.ComaHour + "23:00";
     var ending = text.ending;
     var tags = text.tags;
 
@@ -436,7 +437,7 @@ class Post {
 
     var notes = row[additionalsNotesCol];
     if (notes != EMPTY_STRING)
-      notes = this.text.telegramBold +  this.text.AdditionalsNotes + this.text.telegramBold + this.text.breakline + notes + this.text.breakline
+      notes = this.text.telegramBold + this.text.AdditionalsNotes + this.text.telegramBold + this.text.breakline + notes + this.text.breakline
     return notes;
   }
 
@@ -523,7 +524,7 @@ class Post {
     if (row[isParmanentCol] == this.text.Yes) {
       return this.text.When + this.text.EveryDay + row[daysCol] + this.parseHour(row);
     }
-    return  this.text.When + this.text.Day + row[dayCol] + this.text.coma + this.DateInddmmyyyy(row[dateCol]) + this.parseHour(row);
+    return this.text.When + this.text.Day + row[dayCol] + this.text.coma + this.DateInddmmyyyy(row[dateCol]) + this.parseHour(row);
 
   }
 
@@ -542,6 +543,8 @@ class Post {
     return curDate.toLocaleDateString(this.text.localesDateString);
   }
   // #endregion Date
+
+  // #endregion Build Post
 
   // #region Column Helpers
   ColNumberByLabel(label) {
@@ -623,7 +626,7 @@ class Post {
   validatePostLink(postLink) {
     return postLink !== EMPTY_STRING;
   }
-  
+
   // #region Extract Data
   extractLocation(data) {
     var locationRow = this.findRowInPost(this.text.Location, data);
@@ -739,7 +742,7 @@ class Post {
 
   WEEKLY_SUMMERY() {
     var allEvents = this.parseAllEvents()
-    
+
     const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
 
     var finalStr = this.text.WeeklySummary.HEADER + DOUBLE_SPACE + allEvents +
@@ -889,7 +892,7 @@ class Post {
       return value + this.text.coma + this.text.Day + days[day];
     }
   }
-  
+
   WeeklySummaryPrep(row) {
     const linkToPostCol = this.getRecordsTableCol(this.RecordsTableCols.PostLink);
     const eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName);
@@ -905,7 +908,7 @@ class Post {
     const moreInfo = row[extraInfoCol];
     const systemApproved = row[approvedCol];
 
-    if (this.isHideFromSummary(row)) 
+    if (this.isHideFromSummary(row))
       return EMPTY_STRING;
 
     let summary = date === this.text.Markers.PermanentEvent ? this.text.Markers.PermanentEvent : this.text.Markers.RegularEvent;
@@ -916,7 +919,6 @@ class Post {
     }
 
     summary += systemApproved + this.text.breakline + postLink;
-    console.log(summary);
     return summary;
   }
 
