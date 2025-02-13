@@ -153,7 +153,7 @@ class Post {
 
   buildPost(row) {
     const [eventName, eventDate] = [row[this.getEnmTableCol(this.ENMTableCols.EventName)], row[this.getEnmTableCol(this.ENMTableCols.Date)]];
-    if (this.isEventExistsInRecordsByNameAndDate(eventName, eventDate)) {
+    if (this.isEventExistsInRecordsByNameAndDate(eventName, eventDate) && !this.isPaidPost(row)) {
       return this.errors.EventDuplication.Title + ": " + eventName + this.errors.EventDuplication.Error;
     }
 
@@ -456,13 +456,39 @@ class Post {
   }
 
   parsePaidPost(row) {
-    var paidPostCol = this.getEnmTableCol(this.ENMTableCols.PaidPost);
-    var paidDetailsCol = this.getEnmTableCol(this.ENMTableCols.PaidDetails);
+    const adTypeCol = this.getEnmTableCol(this.ENMTableCols.AdType);
+    const numOfPostsCol = this.getEnmTableCol(this.ENMTableCols.NumOfPosts);
+    const paidAdditionsCol = this.getEnmTableCol(this.ENMTableCols.PaidAdditions);
+    const additionalLinksCol = this.getEnmTableCol(this.ENMTableCols.AdditionalLinks);
+    const numOfEmojisCol = this.getEnmTableCol(this.ENMTableCols.NumOfEmojis);
+    const payerNameCol = this.getEnmTableCol(this.ENMTableCols.PayerName);
+    const CalcPaymentCol = this.getEnmTableCol(this.ENMTableCols.CalcPayment);
 
-    if (row[paidPostCol] == this.text.Yes)
-      return this.text.PaidPost + row[paidDetailsCol] + this.text.breakline
-    else
-      return EMPTY_STRING
+    if (this.isPaidPost(row)) {
+      let paidPostInfo = this.text.PaidPost + this.text.breakline + row[payerNameCol] + this.text.spacedHyphen + row[CalcPaymentCol] + this.text.breakline + this.text.For;
+      var AdType = this.config.AdType;
+
+      if (row[adTypeCol] != AdType.BASIC) {
+        paidPostInfo += row[adTypeCol] + this.text.coma;
+      }
+      if (row[numOfPostsCol] > 1) {
+        paidPostInfo += row[numOfPostsCol] + this.text.Posts + this.text.coma;
+      }
+      if (row[paidAdditionsCol].includes(AdType.ADDITIONAL_LINK)) {
+        paidPostInfo += AdType.ADDITIONAL_LINK + this.text.spacedHyphen + row[additionalLinksCol] + this.text.coma;
+      }
+      if (row[paidAdditionsCol].includes(AdType.EMOJIS)) {
+        paidPostInfo += row[numOfEmojisCol] + AdType.EMOJIS + this.text.coma;
+      }
+
+      return paidPostInfo + DOUBLE_SPACE;
+    }
+
+    return EMPTY_STRING;
+  }
+
+  isPaidPost(row) {
+    return row[this.getEnmTableCol(this.ENMTableCols.ShowPayment)] > 0;
   }
 
   // #region Name and Line
