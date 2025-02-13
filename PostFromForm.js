@@ -152,6 +152,11 @@ class Post {
   }
 
   buildPost(row) {
+    const [eventName, eventDate] = [row[this.getEnmTableCol(this.ENMTableCols.EventName)], row[this.getEnmTableCol(this.ENMTableCols.Date)]];
+    if (this.isEventExistsInRecordsByNameAndDate(eventName, eventDate)) {
+      return this.errors.EventDuplication.Title + ": " + eventName + this.errors.EventDuplication.Error;
+    }
+
     var temp = this.getEventAndLineNames(row)
     if (temp.indexOf(this.text.vs2Line.Name) + 1) {
       return this.build2VS2Post(row);
@@ -488,11 +493,17 @@ class Post {
 
   parseName(row) {
     var eventNameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
-
     var name = row[eventNameCol];
 
+    return this.addPrefixIfNeeded(name);
+
+  }
+
+  addPrefixIfNeeded(name) {
     var regExp = new RegExp("^[A-Za-z]", "gi");
     var firstChar = regExp.exec(name);
+
+    name = name.trim();
 
     if (firstChar != null) {
       name = 'י ' + name;
@@ -539,6 +550,15 @@ class Post {
   }
 
   DateInddmmyyyy(i_date) {
+    if (typeof i_date === "string") {
+      console.log("string date");
+      var parts = i_date.split("/");
+      if (parts.length > 1)
+        i_date = new Date(parseInt(parts[2], 10),
+          parseInt(parts[1], 10) - 1,
+          parseInt(parts[0], 10));
+
+    }
     var curDate = new Date(i_date);
     return curDate.toLocaleDateString(this.text.localesDateString);
   }
@@ -608,9 +628,20 @@ class Post {
     var tags = this.extractTags(data);
     var [name, lineName] = this.extractEventAndLineName(data);
     var exstraData = this.extractExstraData(data);
+    var hide = EMPTY_STRING;
 
-    // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, מאושר ערוץ
-    var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData]
+    if (this.isEventExistsInRecordsByNameAndDate(name, date)) {
+
+      var response = Browser.msgBox(this.errors.EventDuplication.Title, name + this.errors.EventDuplication.Error, Browser.Buttons.YES_NO);
+      if (response == "yes") {
+        hide = this.text.Yes
+      } else {
+        return;
+      }
+    }
+
+    // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, האם להסתיר מהסיכום
+    var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData, hide]
 
     this.addToTable(postArray);
   }
@@ -684,7 +715,7 @@ class Post {
     var nameRaw = data[0]
 
     var temp = nameRaw.split(this.text.By)
-    var name = temp[0], lineName = EMPTY_STRING
+    var name = temp[0].trim(), lineName = EMPTY_STRING
     if (temp.length > 1) {
       var lineName = temp[1];
     }
@@ -964,6 +995,14 @@ class Post {
     return SPACE_STRING + this.text.openBracket + startDate.getDate() + (startDate.getMonth() == endDate.getMonth() ? EMPTY_STRING : this.text.dateDividor + (startDate.getMonth() + 1)) + this.text.hyphen + endDate.toLocaleDateString(this.text.localesDateString) + this.text.closeBracket
   }
   // #endregion Titles
+
+  isEventExistsInRecordsByNameAndDate(eventName, eventDate) {
+    const eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName);
+    const eventDateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
+    eventDate = this.DateInddmmyyyy(eventDate);
+
+    return this.recordsData.some(row => row[eventNameCol].trim() === this.addPrefixIfNeeded(eventName) && this.DateInddmmyyyy(row[eventDateCol]) === eventDate);
+  }
 }
 if (typeof module !== "undefined") module.exports = Post;
 
