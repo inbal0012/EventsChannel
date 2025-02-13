@@ -636,6 +636,7 @@ class Post {
       if (response == "yes") {
         hide = this.text.Yes
       } else {
+        // this.cleanForm();
         return;
       }
     }
@@ -644,6 +645,7 @@ class Post {
     var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData, hide]
 
     this.addToTable(postArray);
+    this.cleanForm();
   }
 
   // #region Submit Event
@@ -748,10 +750,12 @@ class Post {
   // #endregion Extract Data
 
   addToTable(postArray) {
-    var formSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.PARSE_POST.SHEET);
-    var recordsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.RECORDS_TABLE);
+    this.recordsSheet.appendRow(postArray);
+  }
 
-    recordsSheet.appendRow(postArray);
+  cleanForm() {
+    var formSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.PARSE_POST.SHEET);
+
     formSheet.getRange(this.config.INNER_DB.PARSE_POST.RANGE).clearContent();
     formSheet.getRange(this.config.INNER_DB.PARSE_POST.LINKS_RANGE).clearContent();
   }
