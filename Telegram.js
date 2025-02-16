@@ -9,7 +9,7 @@ class Telegram {
   constructor() {
     this.config = new Config();
   }
-  
+
   sendTelegramMessage(message, chat_id) {
     const url = `https://api.telegram.org/bot${this.config.TELEGRAM_BOT_TOKEN}/sendMessage`;
     const payload = {
@@ -37,6 +37,10 @@ class Telegram {
 
   sendTelegramMessageToGroup(message) {
     this.sendTelegramMessage(message, this.config.TELEGRAM_GROUP_CHAT_ID)
+  }
+
+  sendTelegramMessageToInbal(message) {
+    this.sendTelegramMessage(message, this.config.TELEGRAM_INBAL_CHAT_ID)
   }
 
   sendWGTelegramMessage(message, chat_id) {
@@ -69,6 +73,15 @@ class Telegram {
     if (eventDescription != undefined) {
       console.log(eventDescription);
       this.sendTelegramMessageToTemp(eventDescription);
+    }
+  }
+
+  testSendPost(post, eventDescription = undefined) {
+    console.log(post);
+    this.sendTelegramMessageToInbal(post);
+    if (eventDescription != undefined) {
+      console.log(eventDescription);
+      this.sendTelegramMessageToInbal(eventDescription);
     }
   }
 }

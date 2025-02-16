@@ -16,19 +16,44 @@ function SUBMIT() {
   return post.savePost();
 }
 
+function testInbal() {
+  const telegram = new Telegram();
+    telegram.sendTelegramMessageToTemp(telegram.config.Text.heb.WeeklySummary.FOOTER);
+
+}
+
+function testParse() {
+  const telegram = new Telegram();
+  const config = new Config()
+  const post = new Post();
+  post.setENM(config.ENM.NEW_SHEET_URL, config.ENM.EVENT_TABLE)
+
+  var events = createPosts(post);
+  events.forEach(([result, moreDetails]) =>  
+    Logger.log(result, moreDetails))    
+    telegram.testSendPost(result, moreDetails)
+}
+
 function parseForm() {
   const post = new Post();
   const telegram = new Telegram();
+  var events = createPosts(post);
+  events.forEach(([result, moreDetails]) =>  
+    telegram.sendPost(result, moreDetails))
+}
+
+function createPosts(post) {  
   const config = new Config()
 
-  var eventsSheet = SpreadsheetApp.openByUrl(config.ENM.SHEET_URL).getSheetByName(config.ENM.EVENT_TABLE);
-  var eventsData = eventsSheet.getDataRange().getValues();
+  var eventsData = post.eventsData;
 
   var doneCol = post.getEnmTableCol(config.ENMTableCols.Done);
-  var inbalPostCol = post.getEnmTableCol(config.ENMTableCols.InbalPost);;
+  var inbalPostCol = post.getEnmTableCol(config.ENMTableCols.InbalPost);
+
+  var events = []
 
   // check only last 50 entries
-  for (var i = eventsData.length - 1; i > (eventsData.length - 50); i--) {
+  for (var i = eventsData.length - 1; i > (eventsData.length - 50) && i>=0 ; i--) {
     var event = eventsData[i];
 
     if (event[doneCol] != '' || event[inbalPostCol] != '') {
@@ -36,11 +61,12 @@ function parseForm() {
     }
 
     var [result, moreDetails] = post.createPost(i);
-    var cell = eventsSheet.getRange(i + 1, inbalPostCol + 1);
+    var cell = post.enmEventsSheet.getRange(i + 1, inbalPostCol + 1);
     cell.setValue(result);
-    telegram.sendPost(result, moreDetails);
-
+    events.push([result, moreDetails]);
   }
+
+  return events
 }
 
 function dailySummary() {
