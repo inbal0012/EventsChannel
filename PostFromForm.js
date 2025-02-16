@@ -677,7 +677,7 @@ class Post {
   }
 
   validatePostLink(postLink) {
-    return postLink !== EMPTY_STRING;
+    return postLink !== EMPTY_STRING && (postLink.includes(this.text.ChannelLink))
   }
 
   // #region Extract Data
