@@ -16,9 +16,20 @@ function SUBMIT() {
   return post.savePost();
 }
 
+function sendWeeklySummary() {
+  const telegram = new Telegram();
+
+  const recordsSpreadsheet = SpreadsheetApp.openByUrl(telegram.config.INNER_DB.SHEET_URL);
+  const wsSheet = recordsSpreadsheet.getSheetByName(telegram.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
+
+  const summary = wsSheet.getRange(2, 1).getValue();
+
+  telegram.sendPost(summary);
+}
+
 function testInbal() {
   const telegram = new Telegram();
-    telegram.sendTelegramMessageToTemp(telegram.config.Text.heb.WeeklySummary.FOOTER);
+  telegram.sendTelegramMessageToTemp(telegram.config.Text.heb.WeeklySummary.FOOTER);
 
 }
 
@@ -29,20 +40,20 @@ function testParse() {
   post.setENM(config.ENM.NEW_SHEET_URL, config.ENM.EVENT_TABLE)
 
   var events = createPosts(post);
-  events.forEach(([result, moreDetails]) =>  
-    Logger.log(result, moreDetails))    
-    telegram.testSendPost(result, moreDetails)
+  events.forEach(([result, moreDetails]) =>
+    Logger.log(result, moreDetails))
+  telegram.testSendPost(result, moreDetails)
 }
 
 function parseForm() {
   const post = new Post();
   const telegram = new Telegram();
   var events = createPosts(post);
-  events.forEach(([result, moreDetails]) =>  
+  events.forEach(([result, moreDetails]) =>
     telegram.sendPost(result, moreDetails))
 }
 
-function createPosts(post) {  
+function createPosts(post) {
   const config = new Config()
 
   var eventsData = post.eventsData;
@@ -53,7 +64,7 @@ function createPosts(post) {
   var events = []
 
   // check only last 50 entries
-  for (var i = eventsData.length - 1; i > (eventsData.length - 50) && i>=0 ; i--) {
+  for (var i = eventsData.length - 1; i > (eventsData.length - 50) && i >= 0; i--) {
     var event = eventsData[i];
 
     if (event[doneCol] != '' || event[inbalPostCol] != '') {
