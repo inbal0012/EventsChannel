@@ -935,23 +935,23 @@ class Post {
     return eventsStr;
   }
 
-  dateAndDay(value, isRevertOrder=false) {
+  dateAndDay(value, isRevertOrder = false) {
     if (value in this.text.weekDays) {
       return value;
     }
-    
-      var days = this.keysByWeekday();
-      if (typeof value === "string") {
-        var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
-      }
-      else {
-        var date = value;
-        value = this.DateInddmmyyyy(value);
-      }
 
-      var day = date.getDay();
-      if (isRevertOrder) return this.text.Day + days[day] + this.text.coma + value;
-      return value + this.text.coma + this.text.Day + days[day];
+    var days = this.keysByWeekday();
+    if (typeof value === "string") {
+      var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
+    }
+    else {
+      var date = value;
+      value = this.DateInddmmyyyy(value);
+    }
+
+    var day = date.getDay();
+    if (isRevertOrder) return this.text.Day + days[day] + this.text.coma + value;
+    return value + this.text.coma + this.text.Day + days[day];
   }
 
   WeeklySummaryPrep(row) {
@@ -979,7 +979,9 @@ class Post {
       summary += SPACE_STRING + this.text.Markers.Discount;
     }
 
-    summary += systemApproved + this.text.breakline + postLink;
+    summary += systemApproved;
+    summary = "[" + summary + "](" + postLink + ")";
+
     return summary;
   }
 
