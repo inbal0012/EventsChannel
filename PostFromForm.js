@@ -210,8 +210,8 @@ class Post {
 
     var header = text.header;
     var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour + "22:00";
-    var thursday = text.thursday + this.DateInddmmyyyy(date.setDate(date.getDate() + 2)) + this.text.ComaHour + "23:00";
-    var friday = text.friday + this.DateInddmmyyyy(date.setDate(date.getDate() + 1)) + this.text.ComaHour + "23:00";
+    var thursday = text.thursday + this.DateInddmmyyyy(new Date(date.getTime() + 2 * milInDay)) + this.text.ComaHour + "23:00";
+    var friday = text.friday + this.DateInddmmyyyy(new Date(date.getTime() + 3 * milInDay)) + this.text.ComaHour + "23:00";
     var ending = text.ending;
     var tags = text.tags;
 
@@ -561,7 +561,7 @@ class Post {
     if (row[isParmanentCol] == this.text.Yes) {
       return this.text.When + this.text.EveryDay + row[daysCol] + this.parseHour(row);
     }
-    return this.text.When + this.text.Day + row[dayCol] + this.text.coma + this.DateInddmmyyyy(row[dateCol]) + this.parseHour(row);
+    return this.text.When + this.dateAndDay(row[dateCol], true) + this.parseHour(row);
 
   }
 
@@ -577,13 +577,7 @@ class Post {
 
   DateInddmmyyyy(i_date) {
     if (typeof i_date === "string") {
-      console.log("string date");
-      var parts = i_date.split("/");
-      if (parts.length > 1)
-        i_date = new Date(parseInt(parts[2], 10),
-          parseInt(parts[1], 10) - 1,
-          parseInt(parts[0], 10));
-
+      i_date = Utilities.parseDate(i_date, "GMT", "dd/MM/yyyy");
     }
     var curDate = new Date(i_date);
     return curDate.toLocaleDateString(this.text.localesDateString);
@@ -885,7 +879,7 @@ class Post {
       // gives ["01", "03", "2024"]
       a = a.split(this.text.dateDividor);
       b = b.split(this.text.dateDividor);
-      return a[1] - b[1] || a[0] - b[0];
+      return a[2] - b[2] || a[1] - b[1] || a[0] - b[0];
     });
     return datesKeys;
   }
@@ -941,17 +935,23 @@ class Post {
     return eventsStr;
   }
 
-  dateAndDay(value) {
+  dateAndDay(value, isRevertOrder=false) {
     if (value in this.text.weekDays) {
       return value;
     }
-    else {
+    
       var days = this.keysByWeekday();
-      var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
+      if (typeof value === "string") {
+        var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
+      }
+      else {
+        var date = value;
+        value = this.DateInddmmyyyy(value);
+      }
 
       var day = date.getDay();
+      if (isRevertOrder) return this.text.Day + days[day] + this.text.coma + value;
       return value + this.text.coma + this.text.Day + days[day];
-    }
   }
 
   WeeklySummaryPrep(row) {
