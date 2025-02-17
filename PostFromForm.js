@@ -282,6 +282,25 @@ class Post {
       }
     }
   }
+
+  searchLinesInEventName(eventName) {
+    const linksSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.LINKS_TABLE);
+    const linksData = linksSheet.getDataRange().getValues();
+    const lineNameCol = this._colNumberByLabel(this.RecordsTableCols.LineName, linksData) - 1;
+
+    for (let i = 1; i < linksData.length; i++) {
+      const lineName = linksData[i][lineNameCol];
+      if (lineName !== EMPTY_STRING && this.lineExistsInEventName(eventName, lineName)) {
+        return lineName;
+      }
+    }
+    return EMPTY_STRING;
+  }
+
+  lineExistsInEventName(eventName, lineName) {
+    const regExp = new RegExp(lineName, "gi");
+    return regExp.test(eventName);
+  }
   // #endregion Links Table
 
   // #region Tags
@@ -656,7 +675,7 @@ class Post {
 
     if (this.isEventExistsInRecordsByNameAndDate(name, date)) {
 
-      var response = Browser.msgBox(this.errors.EventDuplication.Title, name + this.errors.EventDuplication.Error, Browser.Buttons.YES_NO);
+      var response = Browser.msgBox(this.errors.EventDuplication.Title, name + this.errors.EventDuplication.Error + this.text.AddAnyway, Browser.Buttons.YES_NO);
       if (response == "yes") {
         hide = this.text.Yes
       } else {
@@ -742,11 +761,12 @@ class Post {
 
     var temp = nameRaw.split(this.text.By)
     var name = temp[0].trim(), lineName = EMPTY_STRING
+    var lineName;
     if (temp.length > 1) {
-      var lineName = temp[1];
+      lineName = temp[1];
     }
     else {
-      // TODO search line name in DB
+      lineName = this.searchLinesInEventName(name);
     }
 
     return [name, lineName];
