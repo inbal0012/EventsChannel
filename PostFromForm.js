@@ -49,7 +49,10 @@ class Post {
     var doneCol = this.getEnmTableCol(this.ENMTableCols.Done);
     var nameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
     var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
-    var typeCol = this.getEnmTableCol(this.ENMTableCols.PostType);
+    var typeCol;
+    var iamCol = this.getEnmTableCol(this.ENMTableCols.Iam);
+    var organizerCol = this.getEnmTableCol(this.ENMTableCols.Organizer);
+    var nonOrganizer = this.getEnmTableCol(this.ENMTableCols.NonOrganizer);
 
     var PostTypes = this.config.PostTypes;
 
@@ -61,6 +64,7 @@ class Post {
         continue;
       }
       count++;
+      typeCol = event[iamCol] === this.text.Organizer ? organizerCol : nonOrganizer;
       if (event[typeCol] == PostTypes.publish) {
         events.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
       }
@@ -102,10 +106,13 @@ class Post {
   }
 
   switchPostType(row) {
-    var postTypeCol = this.getEnmTableCol(this.ENMTableCols.PostType);
+    var iamCol = this.getEnmTableCol(this.ENMTableCols.Iam);
+    var postTypeCol = row[iamCol] === this.text.Organizer ?
+      this.getEnmTableCol(this.ENMTableCols.Organizer) :
+      this.getEnmTableCol(this.ENMTableCols.NonOrganizer);
     var cancleEventCol = this.getEnmTableCol(this.ENMTableCols.CancleEvent);
 
-    var postType = row[postTypeCol]
+    var postType = row[postTypeCol];
     var PostTypes = this.config.PostTypes;
 
     switch (postType) {
@@ -142,13 +149,10 @@ class Post {
   }
 
   shareEvent(row) {
-    var postTypeCol = this.getEnmTableCol(this.ENMTableCols.PostType);
     var linkToEventCol = this.getEnmTableCol(this.ENMTableCols.LinkToEvent);
     var eventNameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
 
-    var postType = row[postTypeCol]
-
-    return postType + this.text.breakline + row[eventNameCol] + this.text.spacedHyphen + row[linkToEventCol];
+    return this.text.ShareEvent + this.text.breakline + row[eventNameCol] + this.text.spacedHyphen + row[linkToEventCol];
   }
 
   buildPost(row) {
