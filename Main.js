@@ -1,6 +1,5 @@
 // jshint esversion: 8
 if (typeof require !== 'undefined') {
-  UnitTestingApp = require('./UnitTestingApp.js');
   Post = require('./PostFromForm.js');
   CreatePost = require('./CreatePost.js');
   Summary = require('./Summary.js');
