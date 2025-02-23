@@ -3,13 +3,14 @@ if (typeof require !== 'undefined') {
   UnitTestingApp = require('./UnitTestingApp.js');
   Post = require('./PostFromForm.js');
   CreatePost = require('./CreatePost.js');
+  Summary = require('./Summary.js');
   Telegram = require('./Telegram.js');
   Config = require('./config.js');
 }
 
 function saveSummery() {
-  const post = new Post();
-  return post.saveSummery();
+  const summary = new Summary();
+  return summary.saveSummery();
 }
 
 function SUBMIT() {
