@@ -1,3 +1,5 @@
+.clasp.json
+appsscript.json
 config.js
 
 # https://www.npmjs.com/package/@google/clasp
@@ -6,4 +8,3 @@ config.js
 # https://chromewebstore.google.com/detail/google-apps-script-github/lfjcgcmkmjjlieihflfhjopckgpelofo?pli=1
 # https://developers.google.com/apps-script/api/guides/rest/quickstart/nodejs
 # https://developers.google.com/sheets
-/node_modules
