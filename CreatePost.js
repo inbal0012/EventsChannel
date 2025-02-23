@@ -38,6 +38,13 @@ class CreatePost {
   getRecordsTableCol(colName) {
     return this._colNumberByLabel(colName, this.recordsData);
   }
+  
+  _colNumberByLabel(label, data) {
+    var col = data[0].indexOf(label);
+    if (col != -1) {
+      return col;
+    }
+  }
   // #endregion Get from Table
 
   // #region Create Post
@@ -558,30 +565,8 @@ class CreatePost {
 
   // #endregion Build Post
 
-  setTodayDate() {
-    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
-
-    var thuToggle = wsSheet.getRange(1, 2).getCell(1, 1).getValue();
-    var today = new Date();
-    if (!thuToggle) {
-      return today;
-    }
-    return new Date(today.getTime() - 1 * milInDay)
-  }
-  
-  _colNumberByLabel(label, data) {
-    var col = data[0].indexOf(label);
-    if (col != -1) {
-      return col;
-    }
-  }
-
-  isEventExistsInRecordsByNameAndDate(eventName, eventDate) {
-    const eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName);
-    const eventDateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
-    eventDate = this.DateInddmmyyyy(eventDate);
-
-    return this.recordsData.some(row => row[eventNameCol].trim() === this.addPrefixIfNeeded(eventName) && this.DateInddmmyyyy(row[eventDateCol]) === eventDate);
+  keysByWeekday() {
+    return Object.keys(this.text.weekDays);
   }
 
   dateAndDay(value, isRevertOrder = false) {
@@ -603,10 +588,13 @@ class CreatePost {
     return value + this.text.coma + this.text.Day + days[day];
   }
 
-  keysByWeekday() {
-    return Object.keys(this.text.weekDays);
-  }
+  isEventExistsInRecordsByNameAndDate(eventName, eventDate) {
+    const eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName);
+    const eventDateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
+    eventDate = this.DateInddmmyyyy(eventDate);
 
+    return this.recordsData.some(row => row[eventNameCol].trim() === this.addPrefixIfNeeded(eventName) && this.DateInddmmyyyy(row[eventDateCol]) === eventDate);
+  }
 }
 if (typeof module !== "undefined") module.exports = CreatePost;
 
