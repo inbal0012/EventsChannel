@@ -41,46 +41,6 @@ class Post {
     return Post.instance;
   }
 
-  dailySummary() {
-    var eventsData = this.enmEventsSheet.getDataRange().getValues();
-    var count = 0;
-    var events = []
-
-    var doneCol = this.getEnmTableCol(this.ENMTableCols.Done);
-    var nameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
-    var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
-    var typeCol;
-    var iamCol = this.getEnmTableCol(this.ENMTableCols.Iam);
-    var organizerCol = this.getEnmTableCol(this.ENMTableCols.Organizer);
-    var nonOrganizer = this.getEnmTableCol(this.ENMTableCols.NonOrganizer);
-
-    var PostTypes = this.config.PostTypes;
-
-    // check only last 50 entries
-    for (var i = eventsData.length - 1; i > (eventsData.length - 100); i--) {
-      var event = eventsData[i];
-
-      if (event[doneCol] != EMPTY_STRING) {
-        continue;
-      }
-      count++;
-      typeCol = event[iamCol] === this.text.Organizer ? organizerCol : nonOrganizer;
-      if (event[typeCol] == PostTypes.publish) {
-        events.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
-      }
-      else if (event[typeCol] == PostTypes.share) {
-        events.push(this.text.ShareEvent + event[nameCol]);
-      }
-      else
-        events.push(this.text.EventFromType + event[typeCol]);
-    }
-    var res = this.text.Theres + count + this.text.WaitingEvents;
-    if (count == 0) {
-      return res + this.text.WellDone;
-    }
-    return res + ":" + this.text.breakline + events.join(this.text.breakline);
-  }
-
   // #region Column Helpers
   ColNumberByLabel(label) {
     var sheet = SpreadsheetApp.getActiveSheet();

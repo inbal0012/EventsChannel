@@ -88,10 +88,10 @@ function createPosts(post) {
 }
 
 function dailySummary() {
-  const post = new Post();
+  const summary = new Summary();
   const telegram = new Telegram();
 
-  telegram.sendPost(post.dailySummary());
+  telegram.sendPost(summary.dailySummary());
 }
 
 function weeklySchduleReminder() {

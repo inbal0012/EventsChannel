@@ -79,6 +79,46 @@ class Summary {
   }
   // #endregion Get from Table
 
+  dailySummary() {
+    var eventsData = this.enmEventsSheet.getDataRange().getValues();
+    var count = 0;
+    var events = []
+
+    var doneCol = this.getEnmTableCol(this.ENMTableCols.Done);
+    var nameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
+    var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
+    var typeCol;
+    var iamCol = this.getEnmTableCol(this.ENMTableCols.Iam);
+    var organizerCol = this.getEnmTableCol(this.ENMTableCols.Organizer);
+    var nonOrganizer = this.getEnmTableCol(this.ENMTableCols.NonOrganizer);
+
+    var PostTypes = this.config.PostTypes;
+
+    // check only last 50 entries
+    for (var i = eventsData.length - 1; i > (eventsData.length - 100); i--) {
+      var event = eventsData[i];
+
+      if (event[doneCol] != EMPTY_STRING) {
+        continue;
+      }
+      count++;
+      typeCol = event[iamCol] === this.text.Organizer ? organizerCol : nonOrganizer;
+      if (event[typeCol] == PostTypes.publish) {
+        events.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
+      }
+      else if (event[typeCol] == PostTypes.share) {
+        events.push(this.text.ShareEvent + event[nameCol]);
+      }
+      else
+        events.push(this.text.EventFromType + event[typeCol]);
+    }
+    var res = this.text.Theres + count + this.text.WaitingEvents;
+    if (count == 0) {
+      return res + this.text.WellDone;
+    }
+    return res + ":" + this.text.breakline + events.join(this.text.breakline);
+  }
+
   WEEKLY_SUMMERY() {
     var allEvents = this.parseAllEvents()
 
@@ -108,6 +148,17 @@ class Summary {
     return hotline;
   }
 
+  setTodayDate() {
+    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
+
+    var thuToggle = wsSheet.getRange(1, 2).getCell(1, 1).getValue();
+    var today = new Date();
+    if (!thuToggle) {
+      return today;
+    }
+    return new Date(today.getTime() - 1 * milInDay)
+  }
+  
   // #region Parse Events
   parseAllEvents() {
     var eventGroups = this.parseAllIntoEventGroups();
