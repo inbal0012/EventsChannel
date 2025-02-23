@@ -219,17 +219,6 @@ class Summary {
     return datesKeys;
   }
 
-  setTodayDate() {
-    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
-
-    var thuToggle = wsSheet.getRange(1, 2).getCell(1, 1).getValue();
-    var today = new Date();
-    if (!thuToggle) {
-      return today;
-    }
-    return new Date(today.getTime() - 1 * milInDay)
-  }
-  
   setEventGroup(curDate, thisWeekend, nextWeek, after) {
     if (curDate < this.saturday) {
       return thisWeekend;
@@ -242,66 +231,7 @@ class Summary {
         return after;
     }
   }
-  // #endregion Parse Events
-
-  // #region summery helper functions
-  fillEventsDict(dict, key, data) {
-    if (dict[key] == undefined) {
-      dict[key] = new Array();
-    }
-    if (data != EMPTY_STRING)
-      dict[key].push(data);
-  }
-
-  concatenateKeysAndEvents(keys, events) {
-    var eventsStr = EMPTY_STRING;
-    keys.forEach((value, index) => {
-      if (events[value] != undefined) {
-        eventsStr += this.dateAndDay(value) + this.text.breakline;
-        eventsStr += events[value].join(this.text.breakline);
-        eventsStr += this.text.breakline;
-      }
-    })
-
-    return eventsStr;
-  }
-
-  WeeklySummaryPrep(row) {
-    const linkToPostCol = this.getRecordsTableCol(this.RecordsTableCols.PostLink);
-    const eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName);
-    const lineNameCol = this.getRecordsTableCol(this.RecordsTableCols.LineName);
-    const dateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
-    const extraInfoCol = this.getRecordsTableCol(this.RecordsTableCols.MoreInfo);
-    const approvedCol = this.getRecordsTableCol(this.RecordsTableCols.SystemApproved);
-
-    const postLink = row[linkToPostCol];
-    const eventName = row[eventNameCol];
-    const lineName = row[lineNameCol];
-    const date = row[dateCol];
-    const moreInfo = row[extraInfoCol];
-    const systemApproved = row[approvedCol];
-
-    if (this.isHideFromSummary(row))
-      return EMPTY_STRING;
-
-    let summary = date === this.text.Markers.PermanentEvent ? this.text.Markers.PermanentEvent : this.text.Markers.RegularEvent;
-    summary += eventName.replace(this.text.Markers.Approved, EMPTY_STRING).trim() + this.parseLine(eventName, lineName);
-
-    if (moreInfo.includes(this.text.Markers.Discount)) {
-      summary += SPACE_STRING + this.text.Markers.Discount;
-    }
-
-    summary += systemApproved;
-    summary = "[" + summary + "](" + postLink + ")";
-
-    return summary;
-  }
-
-  isHideFromSummary(row) {
-    const hideFromSummaryCol = this.getRecordsTableCol(this.RecordsTableCols.HideFromSummary);
-    return row[hideFromSummaryCol] !== EMPTY_STRING;
-  }
-  // #endregion summery helper functions
+  // #endregion Events By Date
 
   // #region Validations
   isValidDate(curDate) {
@@ -339,6 +269,67 @@ class Summary {
     return SPACE_STRING + this.text.openBracket + startDate.getDate() + (startDate.getMonth() == endDate.getMonth() ? EMPTY_STRING : this.text.dateDividor + (startDate.getMonth() + 1)) + this.text.hyphen + endDate.toLocaleDateString(this.text.localesDateString) + this.text.closeBracket
   }
   // #endregion Titles
+
+  WeeklySummaryPrep(row) {
+    const linkToPostCol = this.getRecordsTableCol(this.RecordsTableCols.PostLink);
+    const eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName);
+    const lineNameCol = this.getRecordsTableCol(this.RecordsTableCols.LineName);
+    const dateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
+    const extraInfoCol = this.getRecordsTableCol(this.RecordsTableCols.MoreInfo);
+    const approvedCol = this.getRecordsTableCol(this.RecordsTableCols.SystemApproved);
+
+    const postLink = row[linkToPostCol];
+    const eventName = row[eventNameCol];
+    const lineName = row[lineNameCol];
+    const date = row[dateCol];
+    const moreInfo = row[extraInfoCol];
+    const systemApproved = row[approvedCol];
+
+    if (this.isHideFromSummary(row))
+      return EMPTY_STRING;
+
+    let summary = date === this.text.Markers.PermanentEvent ? this.text.Markers.PermanentEvent : this.text.Markers.RegularEvent;
+    summary += eventName.replace(this.text.Markers.Approved, EMPTY_STRING).trim() + this.parseLine(eventName, lineName);
+
+    if (moreInfo.includes(this.text.Markers.Discount)) {
+      summary += SPACE_STRING + this.text.Markers.Discount;
+    }
+
+    summary += systemApproved;
+    summary = "[" + summary + "](" + postLink + ")";
+
+    return summary;
+  }
+
+  isHideFromSummary(row) {
+    const hideFromSummaryCol = this.getRecordsTableCol(this.RecordsTableCols.HideFromSummary);
+    return row[hideFromSummaryCol] !== EMPTY_STRING;
+  }
+  
+  // #region summery helper functions
+  fillEventsDict(dict, key, data) {
+    if (dict[key] == undefined) {
+      dict[key] = new Array();
+    }
+    if (data != EMPTY_STRING)
+      dict[key].push(data);
+  }
+
+  concatenateKeysAndEvents(keys, events) {
+    var eventsStr = EMPTY_STRING;
+    keys.forEach((value, index) => {
+      if (events[value] != undefined) {
+        eventsStr += this.dateAndDay(value) + this.text.breakline;
+        eventsStr += events[value].join(this.text.breakline);
+        eventsStr += this.text.breakline;
+      }
+    })
+
+    return eventsStr;
+  }
+
+  // #endregion summery helper functions
+
 }
 if (typeof module !== "undefined") module.exports = Summary;
 
