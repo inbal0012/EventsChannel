@@ -4,6 +4,7 @@ if (typeof require !== 'undefined') {
   Post = require('./PostFromForm.js');
   CreatePost = require('./CreatePost.js');
   Summary = require('./Summary.js');
+  Records = require('./Records.js');
   Telegram = require('./Telegram.js');
   Config = require('./config.js');
 }
@@ -14,8 +15,8 @@ function saveSummery() {
 }
 
 function SUBMIT() {
-  const post = new Post();
-  return post.savePost();
+  const records = new Records();
+  return records.savePost();
 }
 
 function sendWeeklySummary() {
