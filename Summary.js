@@ -1,83 +1,26 @@
 /**
- * Class for creating an Event Post the event form.
+ * Class for handling summaries.
  */
 
 // jshint esversion: 8
 if (typeof require !== 'undefined') {
-  Config = require('./config.js');
+  Common = require('./Common.js');
 }
 
-class Summary {
+class Summary extends Common {
   constructor() {
+    super();
     if (Summary.instance) return Summary.instance;
 
     Summary.instance = this;
-    this.config = new Config();
-
-    this.recordsSpreadsheet = SpreadsheetApp.openByUrl(this.config.INNER_DB.SHEET_URL);
-    this.recordsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.RECORDS_TABLE);
-    this.recordsData = this.recordsSheet.getDataRange().getValues();
 
     this.today = this.setTodayDate();
     this.thu = new Date(this.today.getTime() + 1 * milInDay)
     this.saturday = new Date(this.thu.getTime() + 2 * milInDay);
     this.nextSat = new Date(this.saturday.getTime() + 7 * milInDay);
 
-    this.RecordsTableCols = this.config.RecordsTableCols;
-
-    this.text = this.config.Text.heb;
-    this.errors = this.config.Text.errors;
-
     return Summary.instance;
   }
-
-  // #region Get from Table
-  getRecordsTableCol(colName) {
-    return this._colNumberByLabel(colName, this.recordsData);
-  }
-  
-  _colNumberByLabel(label, data) {
-    var col = data[0].indexOf(label);
-    if (col != -1) {
-      return col;
-    }
-  }
-
-  parseLine(eventName, lineName) {
-    if (lineName == EMPTY_STRING)
-      return EMPTY_STRING;
-
-    var regExp = new RegExp(lineName, "gi");
-    var lineMatch = regExp.exec(eventName)
-    if (lineMatch != null)
-      return EMPTY_STRING;
-
-    return SPACE_STRING + this.text.By + lineName;
-  }
-  
-  dateAndDay(value, isRevertOrder = false) {
-    if (value in this.text.weekDays) {
-      return value;
-    }
-
-    var days = this.keysByWeekday();
-    if (typeof value === "string") {
-      var date = Utilities.parseDate(value, "GMT", "dd/MM/yyyy");
-    }
-    else {
-      var date = value;
-      value = this.DateInddmmyyyy(value);
-    }
-
-    var day = date.getDay();
-    if (isRevertOrder) return this.text.Day + days[day] + this.text.coma + value;
-    return value + this.text.coma + this.text.Day + days[day];
-  }
-
-  keysByWeekday() {
-    return Object.keys(this.text.weekDays);
-  }
-  // #endregion Get from Table
 
   dailySummary() {
     var eventsData = this.enmEventsSheet.getDataRange().getValues();
@@ -327,12 +270,11 @@ class Summary {
 
     return eventsStr;
   }
-
   // #endregion summery helper functions
 
 }
 if (typeof module !== "undefined") module.exports = Summary;
 
-function initCreatePost() {
+function initSummary() {
   return new Summary();
 }

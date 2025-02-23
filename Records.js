@@ -1,27 +1,18 @@
 /**
- * Class for creating an Event Post the event form.
+ * Class for handling records.
  */
 
 // jshint esversion: 8
 if (typeof require !== 'undefined') {
-  Config = require('./config.js');
+  Common = require('./Common.js');
 }
 
-class Records {
+class Records extends Common {
   constructor() {
+    super();
     if (Records.instance) return Records.instance;
 
     Records.instance = this;
-    this.config = new Config();
-
-    this.recordsSpreadsheet = SpreadsheetApp.openByUrl(this.config.INNER_DB.SHEET_URL);
-    this.recordsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.RECORDS_TABLE);
-    this.recordsData = this.recordsSheet.getDataRange().getValues();
-
-    this.RecordsTableCols = this.config.RecordsTableCols;
-
-    this.text = this.config.Text.heb;
-    this.errors = this.config.Text.errors;
 
     return Records.instance;
   }
