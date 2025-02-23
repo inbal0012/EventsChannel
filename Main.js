@@ -2,6 +2,7 @@
 if (typeof require !== 'undefined') {
   UnitTestingApp = require('./UnitTestingApp.js');
   Post = require('./PostFromForm.js');
+  CreatePost = require('./CreatePost.js');
   Telegram = require('./Telegram.js');
   Config = require('./config.js');
 }
@@ -36,13 +37,12 @@ function testInbal() {
 function testParse() {
   const telegram = new Telegram();
   const config = new Config()
-  const post = new Post();
-  post.setENM(config.ENM.NEW_SHEET_URL, config.ENM.EVENT_TABLE)
+  const post = new CreatePost();
+  // post.setENM(config.ENM.NEW_SHEET_URL, config.ENM.EVENT_TABLE)
 
   var events = createPosts(post);
   events.forEach(([result, moreDetails]) =>
-    Logger.log(result, moreDetails))
-  telegram.testSendPost(result, moreDetails)
+    telegram.testSendPost(result, moreDetails))
 }
 
 function parseForm() {
@@ -62,6 +62,11 @@ function createPosts(post) {
   var inbalPostCol = post.getEnmTableCol(config.ENMTableCols.InbalPost);
 
   var events = []
+
+  var FIXUPS_LINE = 894
+  if (eventsData.length > FIXUPS_LINE-5) {
+    events.push(["Inbal, FIXUPS_LINE is close!",]);
+  }
 
   // check only last 50 entries
   for (var i = eventsData.length - 1; i > (eventsData.length - 50) && i >= 0; i--) {
