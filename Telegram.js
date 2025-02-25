@@ -11,7 +11,7 @@ class Telegram {
   }
 
   sendTelegramMessage(message, chat_id) {
-    const url = `https://api.telegram.org/bot${this.config.TELEGRAM_BOT_TOKEN}/sendMessage`;
+    const url = `https://api.telegram.org/bot${this.config.TELEGRAM.BOT_TOKEN}/sendMessage`;
     const payload = {
       chat_id: chat_id,
       text: message,
@@ -28,23 +28,23 @@ class Telegram {
   }
 
   sendTelegramMessageToTemp(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM_TEMP_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.TEMP_CHAT_ID)
   }
 
   sendTelegramMessageToAdmin(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM_ADMINS_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.ADMINS_CHAT_ID)
   }
 
   sendTelegramMessageToGroup(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM_GROUP_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.GROUP_CHAT_ID)
   }
 
   sendTelegramMessageToInbal(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM_INBAL_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.INBAL_CHAT_ID)
   }
 
   sendWGTelegramMessage(message, chat_id) {
-    const url = `https://api.telegram.org/bot${this.config.TELEGRAM_WG_BOT_TOKEN}/sendMessage`;
+    const url = `https://api.telegram.org/bot${this.config.TELEGRAM.WG_BOT_TOKEN}/sendMessage`;
     const payload = {
       chat_id: chat_id,
       text: message
@@ -60,11 +60,11 @@ class Telegram {
   }
 
   sendWGTelegramMessageToAdmin(message) {
-    this.sendWGTelegramMessage(message, this.config.TELEGRAM_WG_ADMINS_CHAT_ID)
+    this.sendWGTelegramMessage(message, this.config.TELEGRAM.WG_ADMINS_CHAT_ID)
   }
 
   sendWGTelegramMessageToGroup(message) {
-    this.sendWGTelegramMessage(message, this.config.TELEGRAM_WG_GROUP_CHAT_ID)
+    this.sendWGTelegramMessage(message, this.config.TELEGRAM.WG_GROUP_CHAT_ID)
   }
 
   sendPost(post, eventDescription = undefined) {
