@@ -47,9 +47,12 @@ class Records extends Common {
         hide = this.text.Yes
       } else {
         // this.cleanForm();
+        // this.markRawAs(this.config.RawStatus.CANCELED, name, date);
         return;
       }
     }
+
+    this.markRawAs(this.config.RawStatus.DONE, name, date);
 
     // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, האם להסתיר מהסיכום
     var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData, hide]
@@ -183,6 +186,25 @@ class Records extends Common {
     }
 
     return -1;
+  }
+
+  markRawAs(status, name, date) {
+    var rawDataSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.RAW_DATA_TABLE);
+    var rawData = rawDataSheet.getDataRange().getValues();
+    var lastRow = rawData.length - 1;
+    var nameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
+    var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
+    var doneCol = this.getEnmTableCol(this.ENMTableCols.Done);
+
+    for (var i = lastRow; i > Math.max(0, lastRow - 100); i--) {
+      var currEvent = rawData[i]
+      var eventName = currEvent[nameCol];
+      var eventDate = currEvent[dateCol];
+      if (eventName === name && this.DateInddmmyyyy(eventDate) === date) {
+        rawDataSheet.getRange(i + 1, doneCol + 1).setValue(status);
+        return;
+      }
+    }
   }
   // #endregion Submit Event
 
