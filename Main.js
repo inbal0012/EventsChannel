@@ -1,11 +1,15 @@
 // jshint esversion: 8
 if (typeof require !== 'undefined') {
-  Post = require('./PostFromForm.js');
   CreatePost = require('./CreatePost.js');
   Summary = require('./Summary.js');
   Records = require('./Records.js');
   Telegram = require('./Telegram.js');
   Config = require('./config.js');
+}
+
+function testSummery() {
+  const summary = new Summary();
+  console.log(summary.getSummary());
 }
 
 function saveSummery() {
@@ -31,7 +35,7 @@ function sendWeeklySummary() {
 
 function testInbal() {
   const telegram = new Telegram();
-  telegram.sendTelegramMessageToTemp(telegram.config.Text.heb.WeeklySummary.FOOTER);
+  telegram.sendTelegramMessageToInbal(telegram.config.Text.heb.WeeklySummary.FOOTER);
 
 }
 
@@ -47,7 +51,7 @@ function testParse() {
 }
 
 function parseForm() {
-  const post = new Post();
+  const post = new CreatePost();
   const telegram = new Telegram();
   var events = createPosts(post);
   events.forEach(([result, moreDetails]) =>

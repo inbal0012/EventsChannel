@@ -70,7 +70,7 @@ class Summary extends Common {
     var finalStr = this.text.WeeklySummary.HEADER + DOUBLE_SPACE + allEvents +
       this.text.WeeklySummary.FOOTER + this.hotlineFooter();
     finalStr = this.text.UpdatedAt + t + this.text.breakline + finalStr
-    console.log(finalStr)
+
     return finalStr;
   }
 

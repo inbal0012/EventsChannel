@@ -35,7 +35,6 @@ class CreatePost extends Common {
     var postTypeCol = row[iamCol] === this.text.Organizer ?
       this.getEnmTableCol(this.ENMTableCols.Organizer) :
       this.getEnmTableCol(this.ENMTableCols.NonOrganizer);
-    var cancleEventCol = this.getEnmTableCol(this.ENMTableCols.CancleEvent);
 
     var postType = row[postTypeCol];
     var PostTypes = this.config.PostTypes;
@@ -45,8 +44,6 @@ class CreatePost extends Common {
         return this.buildPost(row);
       case PostTypes.share:
         return this.shareEvent(row);
-      case PostTypes.cancel:
-        return postType + this.text.breakline + row[cancleEventCol];
       case PostTypes.update:
         return this.fixPost(row);
       case PostTypes.contact:
@@ -70,14 +67,14 @@ class CreatePost extends Common {
     var contWay = this.getEnmTableCol(this.ENMTableCols.ContactWays)
     var contSubj = this.getEnmTableCol(this.ENMTableCols.ContactSubject);
 
-    return this.text.ContactRequest + DOUBLE_SPACE + this.text.Contact + row[contWay] + DOUBLE_SPACE + this.text.Reason + row[contSubj];
+    return this.text.ContactRequest + DOUBLE_SPACE + this.text.Contact + row[contWay] + this.text.breakline + this.text.Reason + row[contSubj];
   }
 
   shareEvent(row) {
     var linkToEventCol = this.getEnmTableCol(this.ENMTableCols.LinkToEvent);
-    var eventNameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
+    var TitleCol = this.getEnmTableCol(this.ENMTableCols.Title);
 
-    return this.text.ShareEvent + this.text.breakline + row[eventNameCol] + this.text.spacedHyphen + row[linkToEventCol];
+    return this.text.ShareEvent + this.text.breakline + row[TitleCol] + this.text.spacedHyphen + row[linkToEventCol];
   }
 
   buildPost(row) {
@@ -459,7 +456,6 @@ class CreatePost extends Common {
   parseDate(row) {
     var isParmanentCol = this.getEnmTableCol(this.ENMTableCols.IsParmanent);
     var daysCol = this.getEnmTableCol(this.ENMTableCols.ParmanentDays);
-    var dayCol = this.getEnmTableCol(this.ENMTableCols.Day);
     var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
 
     if (row[isParmanentCol] == this.text.Yes) {
@@ -473,10 +469,15 @@ class CreatePost extends Common {
     var hourCol = this.getEnmTableCol(this.ENMTableCols.Hour);
 
     if (row[hourCol] != EMPTY_STRING)
-      return this.text.ComaHour + row[hourCol];
+      return this.text.ComaHour + this.HHmmHour(row[hourCol]);
     else
       return EMPTY_STRING;
 
+  }
+
+  HHmmHour(date) {
+    if (!date) return EMPTY_STRING;
+    return date.toTimeString().slice(0, 5);
   }
   // #endregion Date
 }
