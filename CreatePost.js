@@ -9,9 +9,9 @@ if (typeof require !== 'undefined') {
 
 class CreatePost extends Common {
   constructor() {
-    super();
     if (CreatePost.instance) return CreatePost.instance;
-
+    
+    super();
     CreatePost.instance = this;
 
     return CreatePost.instance;

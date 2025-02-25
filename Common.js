@@ -38,7 +38,7 @@ class Common {
   getRecordsTableCol(colName) {
     return this._colNumberByLabel(colName, this.recordsData);
   }
-  
+
   _colNumberByLabel(label, data) {
     var col = data[0].indexOf(label);
     if (col != -1) {
@@ -65,7 +65,7 @@ class Common {
     const regExp = new RegExp(lineName, "gi");
     return regExp.test(eventName);
   }
-  
+
   keysByWeekday() {
     return Object.keys(this.text.weekDays);
   }
@@ -104,7 +104,7 @@ class Common {
     var curDate = new Date(i_date);
     return curDate.toLocaleDateString(this.text.localesDateString);
   }
-  
+
   addPrefixIfNeeded(name) {
     var regExp = new RegExp("^[A-Za-z]", "gi");
     var firstChar = regExp.exec(name);

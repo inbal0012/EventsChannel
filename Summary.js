@@ -9,9 +9,9 @@ if (typeof require !== 'undefined') {
 
 class Summary extends Common {
   constructor() {
-    super();
     if (Summary.instance) return Summary.instance;
 
+    super();
     Summary.instance = this;
 
     this.today = this.setTodayDate();
@@ -101,7 +101,7 @@ class Summary extends Common {
     }
     return new Date(today.getTime() - 1 * milInDay)
   }
-  
+
   // #region Parse Events
   parseAllEvents() {
     var eventGroups = this.parseAllIntoEventGroups();
@@ -116,7 +116,7 @@ class Summary extends Common {
 
     return finalStr;
   }
-  
+
   parseAllIntoEventGroups() {
     var dateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
     var dayCol = this.getRecordsTableCol(this.RecordsTableCols.Day);
@@ -248,7 +248,7 @@ class Summary extends Common {
     const hideFromSummaryCol = this.getRecordsTableCol(this.RecordsTableCols.HideFromSummary);
     return row[hideFromSummaryCol] !== EMPTY_STRING;
   }
-  
+
   // #region summery helper functions
   fillEventsDict(dict, key, data) {
     if (dict[key] == undefined) {

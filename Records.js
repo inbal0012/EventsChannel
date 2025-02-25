@@ -9,9 +9,9 @@ if (typeof require !== 'undefined') {
 
 class Records extends Common {
   constructor() {
-    super();
     if (Records.instance) return Records.instance;
 
+    super();
     Records.instance = this;
 
     return Records.instance;
