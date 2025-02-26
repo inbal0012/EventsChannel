@@ -14,6 +14,8 @@ class Summary extends Common {
     super();
     Summary.instance = this;
 
+    this.summarySheet = this.getOrCreateSheet(this.config.INNER_DB.SUMMARY_TABLE);
+
     this.today = this.setTodayDate();
     this.thu = new Date(this.today.getTime() + 1 * milInDay)
     this.saturday = new Date(this.thu.getTime() + 2 * milInDay);
@@ -21,6 +23,100 @@ class Summary extends Common {
 
     return Summary.instance;
   }
+
+  // #region test
+  prepAllEvents() {
+    var dateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
+    var dayCol = this.getRecordsTableCol(this.RecordsTableCols.Day);
+
+    var events = {}, permEvents = {};
+    // TODO sort perm events by day
+
+    this.recordsData.forEach((value) => {
+      var curDate = new Date(value[dateCol]);
+      if (value[dateCol] == this.text.PermanentEvent) {
+        var day = value[dayCol];
+        this.fillEventsDict(permEvents, day, this.WeeklySummaryPrep(value));
+      }
+      else {
+        if (!this.isValidDate(curDate))
+          return;
+
+        if (!this.isFutureEvent(curDate))
+          return;
+
+        this.fillEventsDict(events, curDate.toLocaleDateString(this.text.localesDateString), this.WeeklySummaryPrep(value));
+      }
+    })
+
+    var eventsArray = this.concatenateKeysAndEvents(this.allKeysSorted(events), events);
+    var permEventsArray = this.concatenateKeysAndEvents(this.allKeysSorted(permEvents), permEvents);
+
+    return [eventsArray, permEventsArray];
+  }
+
+  concatenateKeysAndEvents(keys, i_events) {
+    var events = [];
+    keys.forEach((value, index) => {
+      if (i_events[value] != undefined) {
+        events.push([value, i_events[value].join(this.text.breakline)]);
+      }
+    })
+
+    return events;
+  }
+
+  getSummary() {
+    var isUpToDate = this.summarySheet.getRange(1, 2).getValue();
+
+    if (isUpToDate) {
+      return this.summarySheet.getDataRange().getValues().slice(1);
+    } else {
+      return this.generateSummary();
+    }
+  }
+
+  buildSummaryMessage() {
+    const summary = this.getSummary();
+    const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
+    var thisWeekend = {}, nextWeek = {}, after = {}, permEvents = {};
+
+    summary.forEach(([date, events]) => {
+      var group = this.setEventGroup(date, thisWeekend, nextWeek, after, permEvents);
+      group[this.DateInddmmyyyy(date)] = events;
+    });
+
+    var eventGroups = [thisWeekend, nextWeek, after, permEvents];
+    var groupsStr = eventGroups.map(group => this.concatenateKeysAndEventsStr(this.allKeysSorted(group), group));
+
+    var titlesStr = this.createTitles();
+
+    var finalStr = this.text.WeeklySummary.HEADER + DOUBLE_SPACE;
+    for (var i = 0; i < groupsStr.length; i++) {
+      finalStr += titlesStr[i] + groupsStr[i] + DOUBLE_SPACE
+    }
+
+    finalStr += this.text.WeeklySummary.FOOTER + this.hotlineFooter();
+
+    return finalStr;
+  }
+
+  generateSummary() {
+    const [summaryByDay, permEvents] = this.prepAllEvents();
+    var summary = [["Up to Date: ", true]];
+
+    summaryByDay.map(([date, events]) => summary.push([date, events]));
+    permEvents.map(([date, events]) => summary.push([date, events]));
+
+    this.summarySheet.clear();
+    this.summarySheet.getRange(1, 1, summary.length, 2).setValues(summary);
+    return summary;
+  }
+
+  setUpToDateStatus(newStatus) {
+    this.summarySheet.getRange(1, 2).setValue(newStatus);
+  }
+  // #endregion test
 
   dailySummary() {
     var eventsData = this.enmEventsSheet.getDataRange().getValues();
@@ -105,7 +201,7 @@ class Summary extends Common {
   // #region Parse Events
   parseAllEvents() {
     var eventGroups = this.parseAllIntoEventGroups();
-    var groupsStr = eventGroups.map(group => this.concatenateKeysAndEvents(this.allKeys(group), group));
+    var groupsStr = eventGroups.map(group => this.concatenateKeysAndEventsStr(this.allKeysSorted(group), group));
 
     var titlesStr = this.createTitles();
 
@@ -146,23 +242,30 @@ class Summary extends Common {
     return [thisWeekend, nextWeek, after, permEvents];
   }
 
-  allKeys(events) {
+  allKeysSorted(events) {
     var datesKeys = Object.keys(events);
     if (!datesKeys[0].includes(this.text.dateDividor)) {
       return Object.keys(this.text.weekDays);
     }
 
     datesKeys.sort((a, b) => {
-      // '01/03/2014'.split('/')
-      // gives ["01", "03", "2024"]
-      a = a.split(this.text.dateDividor);
-      b = b.split(this.text.dateDividor);
-      return a[2] - b[2] || a[1] - b[1] || a[0] - b[0];
+      return this.sortDatesInddmmyyyy(a, b);
     });
     return datesKeys;
   }
 
-  setEventGroup(curDate, thisWeekend, nextWeek, after) {
+  sortDatesInddmmyyyy(a, b) {
+    // '01/03/2014'.split('/')
+    // gives ["01", "03", "2024"]
+    a = a.split(this.text.dateDividor);
+    b = b.split(this.text.dateDividor);
+    return a[2] - b[2] || a[1] - b[1] || a[0] - b[0];
+  }
+
+  setEventGroup(curDate, thisWeekend, nextWeek, after, permEvents = undefined) {
+    if (typeof curDate === "string") {
+      return permEvents;
+    } 
     if (curDate < this.saturday) {
       return thisWeekend;
     }
@@ -258,12 +361,12 @@ class Summary extends Common {
       dict[key].push(data);
   }
 
-  concatenateKeysAndEvents(keys, events) {
+  concatenateKeysAndEventsStr(keys, events) {
     var eventsStr = EMPTY_STRING;
     keys.forEach((value, index) => {
       if (events[value] != undefined) {
         eventsStr += this.dateAndDay(value) + this.text.breakline;
-        eventsStr += events[value].join(this.text.breakline);
+        eventsStr += typeof events[value] === "string" ? events[value] : events[value].join(this.text.breakline);
         eventsStr += this.text.breakline;
       }
     })

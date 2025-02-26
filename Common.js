@@ -99,6 +99,9 @@ class Common {
 
   DateInddmmyyyy(i_date) {
     if (typeof i_date === "string") {
+      if (i_date in this.text.weekDays) {
+      return i_date;
+    }
       i_date = Utilities.parseDate(i_date, "GMT", "dd/MM/yyyy");
     }
     var curDate = new Date(i_date);
@@ -128,6 +131,15 @@ class Common {
 
     return SPACE_STRING + this.text.By + lineName;
   }
+
+  getOrCreateSheet(sheetName) {
+    let sheet = this.recordsSpreadsheet.getSheetByName(sheetName);
+    if (!sheet) {
+      sheet = this.recordsSpreadsheet.insertSheet(sheetName);
+    }
+    return sheet;
+  }
+
 }
 if (typeof module !== "undefined") module.exports = Common;
 

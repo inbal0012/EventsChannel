@@ -9,7 +9,7 @@ if (typeof require !== 'undefined') {
 
 function testSummery() {
   const summary = new Summary();
-  console.log(summary.getSummary());
+  console.log(summary.buildSummaryMessage());
 }
 
 function saveSummery() {
