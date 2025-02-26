@@ -120,8 +120,8 @@ class Summary extends Common {
 
   dailySummary() {
     var eventsData = this.enmEventsSheet.getDataRange().getValues();
-    var count = 0;
-    var events = []
+    var count = 0, pendingCount = 0;
+    var events = [], pendingEvents = [];
 
     var doneCol = this.getEnmTableCol(this.ENMTableCols.Done);
     var nameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
@@ -129,33 +129,42 @@ class Summary extends Common {
     var typeCol;
     var iamCol = this.getEnmTableCol(this.ENMTableCols.Iam);
     var organizerCol = this.getEnmTableCol(this.ENMTableCols.Organizer);
-    var nonOrganizer = this.getEnmTableCol(this.ENMTableCols.NonOrganizer);
+    var nonOrganizerCol = this.getEnmTableCol(this.ENMTableCols.NonOrganizer);
+    var titleCol = this.getEnmTableCol(this.ENMTableCols.Title);
 
     var PostTypes = this.config.PostTypes;
 
     // check only last 50 entries
-    for (var i = eventsData.length - 1; i > (eventsData.length - 100); i--) {
+    for (var i = eventsData.length - 1; i > Math.max(0, eventsData.length - 100); i--) {
       var event = eventsData[i];
+
+      if (event[doneCol] === this.config.RawStatus.PENDING) {
+        pendingCount++;
+        pendingEvents.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
+        continue
+      }
 
       if (event[doneCol] != EMPTY_STRING) {
         continue;
       }
       count++;
-      typeCol = event[iamCol] === this.text.Organizer ? organizerCol : nonOrganizer;
+      typeCol = event[iamCol] === this.text.Organizer ? organizerCol : nonOrganizerCol;
       if (event[typeCol] == PostTypes.publish) {
         events.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
       }
       else if (event[typeCol] == PostTypes.share) {
-        events.push(this.text.ShareEvent + event[nameCol]);
+        events.push(this.text.ShareEvent + event[titleCol]);
       }
       else
         events.push(this.text.EventFromType + event[typeCol]);
     }
-    var res = this.text.Theres + count + this.text.WaitingEvents;
+    var res = this.text.telegramBold + this.text.Theres + count + this.text.WaitingEvents + this.text.telegramBold;
     if (count == 0) {
-      return res + this.text.WellDone;
+      res += this.text.WellDone;
     }
-    return res + ":" + this.text.breakline + events.join(this.text.breakline);
+    res += this.text.colon + this.text.breakline + events.join(this.text.breakline);
+    res += pendingCount == 0 ? EMPTY_STRING : DOUBLE_SPACE + this.text.telegramBold + this.text.Theres + pendingCount + this.text.PendingEvents + this.text.colon + this.text.telegramBold + this.text.breakline + pendingEvents.join(this.text.breakline);
+    return res;
   }
 
   WEEKLY_SUMMERY() {
