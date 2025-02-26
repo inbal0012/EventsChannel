@@ -28,19 +28,19 @@ class Telegram {
   }
 
   sendTelegramMessageToTemp(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM.TEMP_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.TEMP_CHAT_ID);
   }
 
   sendTelegramMessageToAdmin(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM.ADMINS_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.ADMINS_CHAT_ID);
   }
 
   sendTelegramMessageToGroup(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM.GROUP_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.GROUP_CHAT_ID);
   }
 
   sendTelegramMessageToInbal(message) {
-    this.sendTelegramMessage(message, this.config.TELEGRAM.INBAL_CHAT_ID)
+    this.sendTelegramMessage(message, this.config.TELEGRAM.INBAL_CHAT_ID);
   }
 
   sendWGTelegramMessage(message, chat_id) {
@@ -60,11 +60,11 @@ class Telegram {
   }
 
   sendWGTelegramMessageToAdmin(message) {
-    this.sendWGTelegramMessage(message, this.config.TELEGRAM.WG_ADMINS_CHAT_ID)
+    this.sendWGTelegramMessage(message, this.config.TELEGRAM.WG_ADMINS_CHAT_ID);
   }
 
   sendWGTelegramMessageToGroup(message) {
-    this.sendWGTelegramMessage(message, this.config.TELEGRAM.WG_GROUP_CHAT_ID)
+    this.sendWGTelegramMessage(message, this.config.TELEGRAM.WG_GROUP_CHAT_ID);
   }
 
   sendPost(post, eventDescription = undefined) {

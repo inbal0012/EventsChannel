@@ -44,7 +44,7 @@ class Records extends Common {
 
       var response = Browser.msgBox(this.errors.EventDuplication.Title, name + this.errors.EventDuplication.Error + this.text.AddAnyway, Browser.Buttons.YES_NO);
       if (response == "yes") {
-        hide = this.text.Yes
+        hide = this.text.Yes;
       } else {
         // this.cleanForm();
         // this.markRawAs(this.config.RawStatus.CANCELED, name, date);
@@ -64,13 +64,13 @@ class Records extends Common {
   // #region Submit Event
   validateEventLink(eventLink) {
     if (eventLink == undefined) {
-      return false
+      return false;
     }
     return true;
   }
 
   validatePostLink(postLink) {
-    return postLink !== this.EMPTY_STRING && (postLink.includes(this.text.ChannelLink))
+    return postLink !== this.EMPTY_STRING && (postLink.includes(this.text.ChannelLink));
   }
 
   // #region Extract Data

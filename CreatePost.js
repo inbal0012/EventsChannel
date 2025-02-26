@@ -59,8 +59,8 @@ class CreatePost extends Common {
     var contactCol = this.getEnmTableCol(this.ENMTableCols.UpdateContact);
     var updatesCol = this.getEnmTableCol(this.ENMTableCols.Updates);
 
-    var event = row[linkCol] != this.EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol]
-    return this.text.FixPost + this.text.breakline + event + this.text.breakline + this.text.Contact + row[contactCol] + this.text.breakline + this.text.NeededUpdates + row[updatesCol]
+    var event = row[linkCol] != this.EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol];
+    return this.text.FixPost + this.text.breakline + event + this.text.breakline + this.text.Contact + row[contactCol] + this.text.breakline + this.text.NeededUpdates + row[updatesCol];
   }
 
   contactRequest(row) {
@@ -98,15 +98,14 @@ class CreatePost extends Common {
     var discountCol = this.getEnmTableCol(this.ENMTableCols.Discount);
 
     if (!(row[isDiscountCol] === this.text.Yes)) {
-      return this.EMPTY_STRING
+      return this.EMPTY_STRING;
     }
 
     var discountStr = this.text.breakline + this.text.ChannelDiscount;
     if (row[discountCol] < 1) {
       discountStr += row[discountCol] * 100 + this.text.PercentDiscount;
     }
-    else
-      discountStr += row[discountCol]
+      discountStr += row[discountCol];
 
     return discountStr
   }

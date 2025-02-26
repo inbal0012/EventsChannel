@@ -141,7 +141,7 @@ class Summary extends Common {
       if (event[doneCol] === this.config.RawStatus.PENDING) {
         pendingCount++;
         pendingEvents.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
-        continue
+        continue;
       }
 
       if (event[doneCol] != this.EMPTY_STRING) {
