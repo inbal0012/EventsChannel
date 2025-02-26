@@ -89,9 +89,14 @@ class Common {
     return value + this.text.coma + this.text.Day + days[day];
   }
 
-  isEventExistsInRecordsByNameAndDate(eventName, eventDate) {
+  isEventExistsInRecordsByNameAndDate(eventName, eventDate, eventDay = undefined) {
     const eventNameCol = this.getRecordsTableCol(this.RecordsTableCols.EventName);
     const eventDateCol = this.getRecordsTableCol(this.RecordsTableCols.Date);
+    if (eventDate === this.text.PermanentEvent) {
+      const eventDayCol = this.getRecordsTableCol(this.RecordsTableCols.day);
+      return this.recordsData.some(row => row[eventNameCol].trim() === this.addPrefixIfNeeded(eventName) && row[eventDayCol] === eventDay);
+    }
+
     eventDate = this.DateInddmmyyyy(eventDate);
 
     return this.recordsData.some(row => row[eventNameCol].trim() === this.addPrefixIfNeeded(eventName) && this.DateInddmmyyyy(row[eventDateCol]) === eventDate);
@@ -100,8 +105,8 @@ class Common {
   DateInddmmyyyy(i_date) {
     if (typeof i_date === "string") {
       if (i_date in this.text.weekDays) {
-      return i_date;
-    }
+        return i_date;
+      }
       i_date = Utilities.parseDate(i_date, "GMT", "dd/MM/yyyy");
     }
     var curDate = new Date(i_date);

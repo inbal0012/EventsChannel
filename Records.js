@@ -40,7 +40,7 @@ class Records extends Common {
     var exstraData = this.extractExstraData(data);
     var hide = EMPTY_STRING;
 
-    if (this.isEventExistsInRecordsByNameAndDate(name, date)) {
+    if (this.isEventExistsInRecordsByNameAndDate(name, date, day)) {
 
       var response = Browser.msgBox(this.errors.EventDuplication.Title, name + this.errors.EventDuplication.Error + this.text.AddAnyway, Browser.Buttons.YES_NO);
       if (response == "yes") {
@@ -114,6 +114,15 @@ class Records extends Common {
 
   extractDayDateAndHour(data) {
     var timeRaw = data[this.findRowInPost(this.text.When, data)]
+
+    if (timeRaw.includes(this.text.EveryDay)) {
+      var template = timeRaw.match(this.text.PermanentEventTemplate);
+      if (template) {
+        var day = template[1];
+        var hour = template[2];
+        return [day, this.text.PermanentEvent, hour];
+      }
+    }
 
     var temp = timeRaw.replace(this.text.When, EMPTY_STRING).split(this.text.coma)
     var day = temp[0].replace(this.text.Day, EMPTY_STRING)
