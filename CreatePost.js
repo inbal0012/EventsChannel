@@ -17,8 +17,8 @@ class CreatePost extends Common {
     return CreatePost.instance;
   }
 
-  createPost(ROW_NUM) {
-    var row = this.eventsData[ROW_NUM];
+  createPost(rowNum) {
+    var row = this.eventsData[rowNum];
 
     var postEvent = this.switchPostType(row);
     var eventDescription = this.getEventDescription(row);
@@ -60,7 +60,9 @@ class CreatePost extends Common {
     var updatesCol = this.getEnmTableCol(this.ENMTableCols.Updates);
 
     var event = row[linkCol] != this.EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol];
-    return this.text.FixPost + this.text.breakline + event + this.text.breakline + this.text.Contact + row[contactCol] + this.text.breakline + this.text.NeededUpdates + row[updatesCol];
+    return this.text.FixPost + this.text.breakline + event + this.text.breakline +
+           this.text.Contact + row[contactCol] + this.text.breakline +
+           this.text.NeededUpdates + row[updatesCol];
   }
 
   contactRequest(row) {
@@ -105,7 +107,9 @@ class CreatePost extends Common {
     if (row[discountCol] < 1) {
       discountStr += row[discountCol] * 100 + this.text.PercentDiscount;
     }
+    else {
       discountStr += row[discountCol];
+    }
 
     return discountStr
   }
@@ -130,8 +134,9 @@ class CreatePost extends Common {
     var date = row[dateCol]
     var day = date.getDay();
     var text = this.text.vs2Line;
-    if (day != 2)
+    if (day != 2) {
       return text.Duplication;
+    }
 
     var header = text.header;
     var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour + "22:00";
@@ -467,10 +472,11 @@ class CreatePost extends Common {
   parseHour(row) {
     var hourCol = this.getEnmTableCol(this.ENMTableCols.Hour);
 
-    if (row[hourCol] != this.EMPTY_STRING)
+    if (row[hourCol] != this.EMPTY_STRING) {
       return this.text.ComaHour + this.HHmmHour(row[hourCol]);
-    else
+    } else {
       return this.EMPTY_STRING;
+    }
 
   }
 

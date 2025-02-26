@@ -47,7 +47,8 @@ class Telegram {
     const url = `https://api.telegram.org/bot${this.config.TELEGRAM.WG_BOT_TOKEN}/sendMessage`;
     const payload = {
       chat_id: chat_id,
-      text: message
+      text: message,
+      parse_mode: 'Markdown'
     };
 
     const options = {

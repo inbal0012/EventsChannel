@@ -93,7 +93,7 @@ class Records extends Common {
       return;
     }
 
-    var eventLink = data[eventLinkRowNum]
+    eventLink = data[eventLinkRowNum]
 
     if (eventLink.includes(this.text.openBracket)) {
       var temp = eventLink.split(this.text.openBracket)
@@ -140,7 +140,6 @@ class Records extends Common {
 
     var temp = nameRaw.split(this.text.By)
     var name = temp[0].trim(), lineName = this.EMPTY_STRING
-    var lineName;
     if (temp.length > 1) {
       lineName = temp[1];
     }

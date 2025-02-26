@@ -264,15 +264,13 @@ class Summary extends Common {
   }
 
   sortDatesInddmmyyyy(a, b) {
-    // '01/03/2014'.split('/')
-    // gives ["01", "03", "2024"]
-    a = a.split(this.text.dateDividor);
-    b = b.split(this.text.dateDividor);
-    return a[2] - b[2] || a[1] - b[1] || a[0] - b[0];
+    const [dayA, monthA, yearA] = a.split(this.text.dateDividor).map(Number);
+    const [dayB, monthB, yearB] = b.split(this.text.dateDividor).map(Number);
+    return new Date(yearA, monthA - 1, dayA) - new Date(yearB, monthB - 1, dayB);
   }
 
   setEventGroup(curDate, thisWeekend, nextWeek, after, permEvents = undefined) {
-    if (typeof curDate === "string") {
+    if (typeof curDate === 'string') {
       return permEvents;
     } 
     if (curDate < this.saturday) {
@@ -282,8 +280,9 @@ class Summary extends Common {
       if (curDate < this.nextSat) {
         return nextWeek;
       }
-      else
+      else {
         return after;
+      }
     }
   }
   // #endregion Events By Date
@@ -343,7 +342,7 @@ class Summary extends Common {
     if (this.isHideFromSummary(row))
       return this.EMPTY_STRING;
 
-    let summary = date === this.text.Markers.PermanentEvent ? this.text.Markers.PermanentEvent : this.text.Markers.RegularEvent;
+    let summary = date === this.text.PermanentEvent ? this.text.Markers.PermanentEvent : this.text.Markers.RegularEvent;
     summary += eventName.replace(this.text.Markers.Approved, this.EMPTY_STRING).trim() + this.parseLine(eventName, lineName);
 
     if (moreInfo.includes(this.text.Markers.Discount)) {
@@ -364,7 +363,7 @@ class Summary extends Common {
   // #region summery helper functions
   fillEventsDict(dict, key, data) {
     if (dict[key] == undefined) {
-      dict[key] = new Array();
+      dict[key] = [];
     }
     if (data != this.EMPTY_STRING)
       dict[key].push(data);
@@ -375,7 +374,7 @@ class Summary extends Common {
     keys.forEach((value, index) => {
       if (events[value] != undefined) {
         eventsStr += this.dateAndDay(value) + this.text.breakline;
-        eventsStr += typeof events[value] === "string" ? events[value] : events[value].join(this.text.breakline);
+        eventsStr += typeof events[value] === 'string' ? events[value] : events[value].join(this.text.breakline);
         eventsStr += this.text.breakline;
       }
     })
