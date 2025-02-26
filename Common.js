@@ -24,6 +24,11 @@ class Common {
     this.ENMTableCols = this.config.ENMTableCols;
     this.RecordsTableCols = this.config.RecordsTableCols;
 
+    this.milInDay = 24 * 60 * 60 * 1000;
+    this.SPACE_STRING = " ";
+    this.EMPTY_STRING = "";
+    this.DOUBLE_SPACE = "\n" + "\n";
+
     this.text = this.config.Text.heb;
     this.errors = this.config.Text.errors;
 
@@ -54,11 +59,11 @@ class Common {
 
     for (let i = 1; i < linksData.length; i++) {
       const lineName = linksData[i][lineNameCol];
-      if (lineName !== EMPTY_STRING && this.lineExistsInEventName(eventName, lineName)) {
+      if (lineName !== this.EMPTY_STRING && this.lineExistsInEventName(eventName, lineName)) {
         return lineName;
       }
     }
-    return EMPTY_STRING;
+    return this.EMPTY_STRING;
   }
 
   lineExistsInEventName(eventName, lineName) {
@@ -126,15 +131,15 @@ class Common {
   }
 
   parseLine(eventName, lineName) {
-    if (lineName == EMPTY_STRING)
-      return EMPTY_STRING;
+    if (lineName == this.EMPTY_STRING)
+      return this.EMPTY_STRING;
 
     var regExp = new RegExp(lineName, "gi");
     var lineMatch = regExp.exec(eventName)
     if (lineMatch != null)
-      return EMPTY_STRING;
+      return this.EMPTY_STRING;
 
-    return SPACE_STRING + this.text.By + lineName;
+    return this.SPACE_STRING + this.text.By + lineName;
   }
 
   getOrCreateSheet(sheetName) {

@@ -17,9 +17,9 @@ class Summary extends Common {
     this.summarySheet = this.getOrCreateSheet(this.config.INNER_DB.SUMMARY_TABLE);
 
     this.today = this.setTodayDate();
-    this.thu = new Date(this.today.getTime() + 1 * milInDay)
-    this.saturday = new Date(this.thu.getTime() + 2 * milInDay);
-    this.nextSat = new Date(this.saturday.getTime() + 7 * milInDay);
+    this.thu = new Date(this.today.getTime() + 1 * this.milInDay)
+    this.saturday = new Date(this.thu.getTime() + 2 * this.milInDay);
+    this.nextSat = new Date(this.saturday.getTime() + 7 * this.milInDay);
 
     return Summary.instance;
   }
@@ -91,9 +91,9 @@ class Summary extends Common {
 
     var titlesStr = this.createTitles();
 
-    var finalStr = this.text.WeeklySummary.HEADER + DOUBLE_SPACE;
+    var finalStr = this.text.WeeklySummary.HEADER + this.DOUBLE_SPACE;
     for (var i = 0; i < groupsStr.length; i++) {
-      finalStr += titlesStr[i] + groupsStr[i] + DOUBLE_SPACE
+      finalStr += titlesStr[i] + groupsStr[i] + this.DOUBLE_SPACE
     }
 
     finalStr += this.text.WeeklySummary.FOOTER + this.hotlineFooter();
@@ -144,7 +144,7 @@ class Summary extends Common {
         continue
       }
 
-      if (event[doneCol] != EMPTY_STRING) {
+      if (event[doneCol] != this.EMPTY_STRING) {
         continue;
       }
       count++;
@@ -163,7 +163,7 @@ class Summary extends Common {
       res += this.text.WellDone;
     }
     res += this.text.colon + this.text.breakline + events.join(this.text.breakline);
-    res += pendingCount == 0 ? EMPTY_STRING : DOUBLE_SPACE + this.text.telegramBold + this.text.Theres + pendingCount + this.text.PendingEvents + this.text.colon + this.text.telegramBold + this.text.breakline + pendingEvents.join(this.text.breakline);
+    res += pendingCount == 0 ? this.EMPTY_STRING : this.DOUBLE_SPACE + this.text.telegramBold + this.text.Theres + pendingCount + this.text.PendingEvents + this.text.colon + this.text.telegramBold + this.text.breakline + pendingEvents.join(this.text.breakline);
     return res;
   }
 
@@ -172,7 +172,7 @@ class Summary extends Common {
 
     const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
 
-    var finalStr = this.text.WeeklySummary.HEADER + DOUBLE_SPACE + allEvents +
+    var finalStr = this.text.WeeklySummary.HEADER + this.DOUBLE_SPACE + allEvents +
       this.text.WeeklySummary.FOOTER + this.hotlineFooter();
     finalStr = this.text.UpdatedAt + t + this.text.breakline + finalStr
 
@@ -189,9 +189,9 @@ class Summary extends Common {
   }
 
   hotlineFooter() {
-    var hotline = EMPTY_STRING
+    var hotline = this.EMPTY_STRING
     if (this.today.getDate() < 8) {
-      hotline = DOUBLE_SPACE + this.text.Hotline;
+      hotline = this.DOUBLE_SPACE + this.text.Hotline;
     }
     return hotline;
   }
@@ -204,7 +204,7 @@ class Summary extends Common {
     if (!thuToggle) {
       return today;
     }
-    return new Date(today.getTime() - 1 * milInDay)
+    return new Date(today.getTime() - 1 * this.milInDay)
   }
 
   // #region Parse Events
@@ -214,9 +214,9 @@ class Summary extends Common {
 
     var titlesStr = this.createTitles();
 
-    var finalStr = EMPTY_STRING;
+    var finalStr = this.EMPTY_STRING;
     for (var i = 0; i < groupsStr.length; i++) {
-      finalStr += titlesStr[i] + groupsStr[i] + DOUBLE_SPACE
+      finalStr += titlesStr[i] + groupsStr[i] + this.DOUBLE_SPACE
     }
 
     return finalStr;
@@ -306,7 +306,7 @@ class Summary extends Common {
     var text = this.text.Titles;
     var thisWeekend = this.createTitle(text.ThisWeekend, this.thu, this.saturday);
 
-    var sunday = new Date(this.saturday.getTime() + 1 * milInDay)
+    var sunday = new Date(this.saturday.getTime() + 1 * this.milInDay)
     var nextWeek = this.createTitle(text.NextWeek, sunday, this.nextSat)
 
     var after = this.createTitle(text.FutureEvents);
@@ -317,11 +317,11 @@ class Summary extends Common {
   }
 
   createTitle(text, startDate = null, endDate = null) {
-    return this.text.telegramBold + this.text.titleMarker + text + (startDate != null ? this.titleDates(startDate, endDate) : EMPTY_STRING) + this.text.titleMarker + this.text.telegramBold + DOUBLE_SPACE;
+    return this.text.telegramBold + this.text.titleMarker + text + (startDate != null ? this.titleDates(startDate, endDate) : this.EMPTY_STRING) + this.text.titleMarker + this.text.telegramBold + this.DOUBLE_SPACE;
   }
 
   titleDates(startDate, endDate) {
-    return SPACE_STRING + this.text.openBracket + startDate.getDate() + (startDate.getMonth() == endDate.getMonth() ? EMPTY_STRING : this.text.dateDividor + (startDate.getMonth() + 1)) + this.text.hyphen + endDate.toLocaleDateString(this.text.localesDateString) + this.text.closeBracket
+    return this.SPACE_STRING + this.text.openBracket + startDate.getDate() + (startDate.getMonth() == endDate.getMonth() ? this.EMPTY_STRING : this.text.dateDividor + (startDate.getMonth() + 1)) + this.text.hyphen + endDate.toLocaleDateString(this.text.localesDateString) + this.text.closeBracket
   }
   // #endregion Titles
 
@@ -341,13 +341,13 @@ class Summary extends Common {
     const systemApproved = row[approvedCol];
 
     if (this.isHideFromSummary(row))
-      return EMPTY_STRING;
+      return this.EMPTY_STRING;
 
     let summary = date === this.text.Markers.PermanentEvent ? this.text.Markers.PermanentEvent : this.text.Markers.RegularEvent;
-    summary += eventName.replace(this.text.Markers.Approved, EMPTY_STRING).trim() + this.parseLine(eventName, lineName);
+    summary += eventName.replace(this.text.Markers.Approved, this.EMPTY_STRING).trim() + this.parseLine(eventName, lineName);
 
     if (moreInfo.includes(this.text.Markers.Discount)) {
-      summary += SPACE_STRING + this.text.Markers.Discount;
+      summary += this.SPACE_STRING + this.text.Markers.Discount;
     }
 
     summary += systemApproved;
@@ -358,7 +358,7 @@ class Summary extends Common {
 
   isHideFromSummary(row) {
     const hideFromSummaryCol = this.getRecordsTableCol(this.RecordsTableCols.HideFromSummary);
-    return row[hideFromSummaryCol] !== EMPTY_STRING;
+    return row[hideFromSummaryCol] !== this.EMPTY_STRING;
   }
 
   // #region summery helper functions
@@ -366,12 +366,12 @@ class Summary extends Common {
     if (dict[key] == undefined) {
       dict[key] = new Array();
     }
-    if (data != EMPTY_STRING)
+    if (data != this.EMPTY_STRING)
       dict[key].push(data);
   }
 
   concatenateKeysAndEventsStr(keys, events) {
-    var eventsStr = EMPTY_STRING;
+    var eventsStr = this.EMPTY_STRING;
     keys.forEach((value, index) => {
       if (events[value] != undefined) {
         eventsStr += this.dateAndDay(value) + this.text.breakline;

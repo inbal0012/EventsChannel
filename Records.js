@@ -38,7 +38,7 @@ class Records extends Common {
     var tags = this.extractTags(data);
     var [name, lineName] = this.extractEventAndLineName(data);
     var exstraData = this.extractExstraData(data);
-    var hide = EMPTY_STRING;
+    var hide = this.EMPTY_STRING;
 
     if (this.isEventExistsInRecordsByNameAndDate(name, date, day)) {
 
@@ -70,21 +70,21 @@ class Records extends Common {
   }
 
   validatePostLink(postLink) {
-    return postLink !== EMPTY_STRING && (postLink.includes(this.text.ChannelLink))
+    return postLink !== this.EMPTY_STRING && (postLink.includes(this.text.ChannelLink))
   }
 
   // #region Extract Data
   extractLocation(data) {
     var locationRow = this.findRowInPost(this.text.Location, data);
     if (locationRow !== -1) {
-      return data[locationRow].replace(this.text.Location, EMPTY_STRING);
+      return data[locationRow].replace(this.text.Location, this.EMPTY_STRING);
     }
-    return EMPTY_STRING;
+    return this.EMPTY_STRING;
   }
 
   extractEventLink(data, formSheet) {
     var eventLink = formSheet.getRange(this.config.INNER_DB.PARSE_POST.REG_LINK_CELL).getCell(1, 1).getValue();
-    if (eventLink != EMPTY_STRING) {
+    if (eventLink != this.EMPTY_STRING) {
       return eventLink;
     }
 
@@ -97,14 +97,14 @@ class Records extends Common {
 
     if (eventLink.includes(this.text.openBracket)) {
       var temp = eventLink.split(this.text.openBracket)
-      eventLink = EMPTY_STRING;
+      eventLink = this.EMPTY_STRING;
       if (temp.length < 2) {
         temp = data[this.findRowInPost(this.text.openBracket, data)].split(this.text.openBracket)
         temp = temp[1].split(this.text.closeBracket)
         eventLink = temp[0];
       }
       else {
-        eventLink = temp[1].replace(this.text.closeBracket, EMPTY_STRING)
+        eventLink = temp[1].replace(this.text.closeBracket, this.EMPTY_STRING)
       }
     }
 
@@ -124,12 +124,12 @@ class Records extends Common {
       }
     }
 
-    var temp = timeRaw.replace(this.text.When, EMPTY_STRING).split(this.text.coma)
-    var day = temp[0].replace(this.text.Day, EMPTY_STRING)
+    var temp = timeRaw.replace(this.text.When, this.EMPTY_STRING).split(this.text.coma)
+    var day = temp[0].replace(this.text.Day, this.EMPTY_STRING)
     var date = temp[1].trim()
-    var hour = EMPTY_STRING
+    var hour = this.EMPTY_STRING
     if (temp.length > 2) {
-      hour = temp[2].replace(this.text.Hour, EMPTY_STRING)
+      hour = temp[2].replace(this.text.Hour, this.EMPTY_STRING)
     }
 
     return [day, date, hour];
@@ -139,7 +139,7 @@ class Records extends Common {
     var nameRaw = data[0]
 
     var temp = nameRaw.split(this.text.By)
-    var name = temp[0].trim(), lineName = EMPTY_STRING
+    var name = temp[0].trim(), lineName = this.EMPTY_STRING
     var lineName;
     if (temp.length > 1) {
       lineName = temp[1];
@@ -155,7 +155,7 @@ class Records extends Common {
     var tagsRow = this.findRowInPost("#", data);
     var tags = data[tagsRow];
     if (tags.includes(this.text.SaveTheDateTag)) {
-      tags += SPACE_STRING + data[tagsRow + 1];
+      tags += this.SPACE_STRING + data[tagsRow + 1];
     }
 
     return tags;

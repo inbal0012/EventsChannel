@@ -2,10 +2,6 @@
  * Class for creating an Event Post the event form.
  */
 
-const DOUBLE_SPACE = "\n" + "\n";
-const EMPTY_STRING = "";
-const SPACE_STRING = " ";
-const milInDay = 86400000;
 
 // jshint esversion: 8
 if (typeof require !== 'undefined') {

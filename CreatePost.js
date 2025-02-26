@@ -23,7 +23,7 @@ class CreatePost extends Common {
     var postEvent = this.switchPostType(row);
     var eventDescription = this.getEventDescription(row);
 
-    if (postEvent == EMPTY_STRING) {
+    if (postEvent == this.EMPTY_STRING) {
       postEvent = this.errors.ParsingEventError;
     }
 
@@ -49,7 +49,7 @@ class CreatePost extends Common {
       case PostTypes.contact:
         return this.contactRequest(row);
       default:
-        return EMPTY_STRING;
+        return this.EMPTY_STRING;
     }
   }
 
@@ -59,7 +59,7 @@ class CreatePost extends Common {
     var contactCol = this.getEnmTableCol(this.ENMTableCols.UpdateContact);
     var updatesCol = this.getEnmTableCol(this.ENMTableCols.Updates);
 
-    var event = row[linkCol] != EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol]
+    var event = row[linkCol] != this.EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol]
     return this.text.FixPost + this.text.breakline + event + this.text.breakline + this.text.Contact + row[contactCol] + this.text.breakline + this.text.NeededUpdates + row[updatesCol]
   }
 
@@ -67,7 +67,7 @@ class CreatePost extends Common {
     var contWay = this.getEnmTableCol(this.ENMTableCols.ContactWays)
     var contSubj = this.getEnmTableCol(this.ENMTableCols.ContactSubject);
 
-    return this.text.ContactRequest + DOUBLE_SPACE + this.text.Contact + row[contWay] + this.text.breakline + this.text.Reason + row[contSubj];
+    return this.text.ContactRequest + this.DOUBLE_SPACE + this.text.Contact + row[contWay] + this.text.breakline + this.text.Reason + row[contSubj];
   }
 
   shareEvent(row) {
@@ -88,7 +88,7 @@ class CreatePost extends Common {
       return this.build2VS2Post(row);
     }
 
-    return this.parsePaidPost(row) + this.parseName_place_date(row) + DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
+    return this.parsePaidPost(row) + this.parseName_place_date(row) + this.DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + this.DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
   }
   // #endregion Create Post
 
@@ -98,7 +98,7 @@ class CreatePost extends Common {
     var discountCol = this.getEnmTableCol(this.ENMTableCols.Discount);
 
     if (!(row[isDiscountCol] === this.text.Yes)) {
-      return EMPTY_STRING
+      return this.EMPTY_STRING
     }
 
     var discountStr = this.text.breakline + this.text.ChannelDiscount;
@@ -123,7 +123,7 @@ class CreatePost extends Common {
       return systemApproval;
     }
 
-    return EMPTY_STRING;
+    return this.EMPTY_STRING;
   }
 
   build2VS2Post(row) {
@@ -136,12 +136,12 @@ class CreatePost extends Common {
 
     var header = text.header;
     var tuesday = text.tuesday + this.DateInddmmyyyy(date) + this.text.ComaHour + "22:00";
-    var thursday = text.thursday + this.DateInddmmyyyy(new Date(date.getTime() + 2 * milInDay)) + this.text.ComaHour + "23:00";
-    var friday = text.friday + this.DateInddmmyyyy(new Date(date.getTime() + 3 * milInDay)) + this.text.ComaHour + "23:00";
+    var thursday = text.thursday + this.DateInddmmyyyy(new Date(date.getTime() + 2 * this.milInDay)) + this.text.ComaHour + "23:00";
+    var friday = text.friday + this.DateInddmmyyyy(new Date(date.getTime() + 3 * this.milInDay)) + this.text.ComaHour + "23:00";
     var ending = text.ending;
     var tags = text.tags;
 
-    return this.parsePaidPost(row) + header + DOUBLE_SPACE + tuesday + DOUBLE_SPACE + thursday + DOUBLE_SPACE + friday + DOUBLE_SPACE + ending + DOUBLE_SPACE + tags;
+    return this.parsePaidPost(row) + header + this.DOUBLE_SPACE + tuesday + this.DOUBLE_SPACE + thursday + this.DOUBLE_SPACE + friday + this.DOUBLE_SPACE + ending + this.DOUBLE_SPACE + tags;
   }
 
   // #region Links Table
@@ -166,7 +166,7 @@ class CreatePost extends Common {
       var dLine = linksData[i][lineNameCol].toLowerCase();
 
       var lineCheck = false;
-      if (lineName != EMPTY_STRING) {
+      if (lineName != this.EMPTY_STRING) {
         lineCheck = lineName == dLine;
       }
 
@@ -199,7 +199,7 @@ class CreatePost extends Common {
 
     if (events.length > 0) {
       for (var i = 0; i < events.length; i++) {
-        if (events[i][wantedCol] != EMPTY_STRING)
+        if (events[i][wantedCol] != this.EMPTY_STRING)
           return events[i][wantedCol];
       }
     }
@@ -210,8 +210,8 @@ class CreatePost extends Common {
   parseTags(row) {
     var eventTypeCol = this.getEnmTableCol(this.ENMTableCols.EventType);
 
-    var tags = EMPTY_STRING;
-    if (row[eventTypeCol] != EMPTY_STRING) {
+    var tags = this.EMPTY_STRING;
+    if (row[eventTypeCol] != this.EMPTY_STRING) {
       tags = this.createTagsForNewEvent(row);
     }
     else {
@@ -222,8 +222,8 @@ class CreatePost extends Common {
       tags = this.text.SaveTheDateTag + this.text.breakline + tags;
     }
 
-    if (tags != EMPTY_STRING) {
-      tags = tags.replace(/[,]/g, SPACE_STRING);
+    if (tags != this.EMPTY_STRING) {
+      tags = tags.replace(/[,]/g, this.SPACE_STRING);
     }
 
     return tags;
@@ -237,7 +237,7 @@ class CreatePost extends Common {
       tagsArr.push(row[eventTypeCol + i]);
     }
 
-    return tagsArr.join(SPACE_STRING);
+    return tagsArr.join(this.SPACE_STRING);
   }
 
   getTagsFromPastEvent(row) {
@@ -251,7 +251,7 @@ class CreatePost extends Common {
 
     var regularLines = row[regularLinesCol];
     var lines = this.text.regularLines;
-    var tags = EMPTY_STRING;
+    var tags = this.EMPTY_STRING;
     switch (regularLines) {
       case lines.NoneOfTheAbove:
         if (row[linkOrTextCol] == this.text.LinkToPost) {
@@ -278,7 +278,7 @@ class CreatePost extends Common {
         tags = regularLines;
     }
 
-    if (tags != EMPTY_STRING)
+    if (tags != this.EMPTY_STRING)
       tags = this.processTags(tags);
 
     return tags;
@@ -295,7 +295,7 @@ class CreatePost extends Common {
   processTags(text) {
     var temp = text.match(/(#\S+)/g);
     if (temp != undefined && temp != null)
-      return temp.join(SPACE_STRING);
+      return temp.join(this.SPACE_STRING);
     else
       return undefined;
   }
@@ -309,7 +309,7 @@ class CreatePost extends Common {
     if (context.Lines.includes(row[lineNameCol])) {
       return this.text.breakline + context.text;
     }
-    return EMPTY_STRING;
+    return this.EMPTY_STRING;
   }
 
   isTicketsAvailable(row) {
@@ -367,7 +367,7 @@ class CreatePost extends Common {
     var additionalsNotesCol = this.getEnmTableCol(this.ENMTableCols.AdditionalsNotes);
 
     var notes = row[additionalsNotesCol];
-    if (notes != EMPTY_STRING)
+    if (notes != this.EMPTY_STRING)
       notes = this.text.telegramBold + this.text.AdditionalsNotes + this.text.telegramBold + this.text.breakline + notes + this.text.breakline
     return notes;
   }
@@ -376,7 +376,7 @@ class CreatePost extends Common {
     var eventDescriptionCol = this.getEnmTableCol(this.ENMTableCols.EventDescription);
 
     var eventDescription = row[eventDescriptionCol];
-    if (eventDescription != EMPTY_STRING) {
+    if (eventDescription != this.EMPTY_STRING) {
       return eventDescription
     }
   }
@@ -407,10 +407,10 @@ class CreatePost extends Common {
         paidPostInfo += row[numOfEmojisCol] + AdType.EMOJIS + this.text.coma;
       }
 
-      return paidPostInfo + DOUBLE_SPACE;
+      return paidPostInfo + this.DOUBLE_SPACE;
     }
 
-    return EMPTY_STRING;
+    return this.EMPTY_STRING;
   }
 
   isPaidPost(row) {
@@ -468,15 +468,15 @@ class CreatePost extends Common {
   parseHour(row) {
     var hourCol = this.getEnmTableCol(this.ENMTableCols.Hour);
 
-    if (row[hourCol] != EMPTY_STRING)
+    if (row[hourCol] != this.EMPTY_STRING)
       return this.text.ComaHour + this.HHmmHour(row[hourCol]);
     else
-      return EMPTY_STRING;
+      return this.EMPTY_STRING;
 
   }
 
   HHmmHour(date) {
-    if (!date) return EMPTY_STRING;
+    if (!date) return this.EMPTY_STRING;
     return date.toTimeString().slice(0, 5);
   }
   // #endregion Date
