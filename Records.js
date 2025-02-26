@@ -37,7 +37,7 @@ class Records extends Common {
     var [day, date, hour] = this.extractDayDateAndHour(data);
     var tags = this.extractTags(data);
     var [name, lineName] = this.extractEventAndLineName(data);
-    var exstraData = this.extractExstraData(data);
+    var extraData = this.extractExtraData(data);
     var hide = this.EMPTY_STRING;
 
     if (this.isEventExistsInRecordsByNameAndDate(name, date, day)) {
@@ -55,7 +55,7 @@ class Records extends Common {
     this.markRawAs(this.config.RawStatus.DONE, name, date);
 
     // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, האם להסתיר מהסיכום
-    var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, exstraData, hide]
+    var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, extraData, hide]
 
     this.addToTable(postArray);
     this.cleanForm();
@@ -161,14 +161,14 @@ class Records extends Common {
     return tags;
   }
 
-  extractExstraData(data) {
+  extractExtraData(data) {
     var eventLinkRowNum = this.findRowInPost(this.text.Register, data)
-    var exstraData = data[eventLinkRowNum + 1]
-    if (exstraData.includes(this.text.Details)) {
-      exstraData = data[eventLinkRowNum + 2]
+    var extraData = data[eventLinkRowNum + 1]
+    if (extraData.includes(this.text.Details)) {
+      extraData = data[eventLinkRowNum + 2]
     }
 
-    return exstraData;
+    return extraData;
   }
   // #endregion Extract Data
 

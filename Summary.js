@@ -167,7 +167,7 @@ class Summary extends Common {
     return res;
   }
 
-  WEEKLY_SUMMERY() {
+  WEEKLY_SUMMARY() {
     var allEvents = this.parseAllEvents()
 
     const t = Utilities.formatDate(new Date(), 'GMT+2', 'dd/MM/yyyy HH:mm');
@@ -180,8 +180,8 @@ class Summary extends Common {
   }
 
   saveSummery() {
-    var summery = this.WEEKLY_SUMMERY();
-    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
+    var summery = this.WEEKLY_SUMMARY();
+    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMARY_TABLE);
 
     var cell = wsSheet.getRange(2, 1);
     cell.setValue(summery);
@@ -197,7 +197,7 @@ class Summary extends Common {
   }
 
   setTodayDate() {
-    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
+    var wsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.WEEKLY_SUMMARY_TABLE);
 
     var thuToggle = wsSheet.getRange(1, 2).getCell(1, 1).getValue();
     var today = new Date();
