@@ -46,9 +46,7 @@ class Common {
 
   _colNumberByLabel(label, data) {
     var col = data[0].indexOf(label);
-    if (col != -1) {
-      return col;
-    }
+    return col;
   }
   // #endregion Get from Table
 
@@ -148,6 +146,10 @@ class Common {
       sheet = this.recordsSpreadsheet.insertSheet(sheetName);
     }
     return sheet;
+  }
+
+  setUpToDateStatus(newStatus) {
+    this.summarySheet.getRange(1, 2).setValue(newStatus);
   }
 
 }

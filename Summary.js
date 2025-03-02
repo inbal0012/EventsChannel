@@ -82,6 +82,9 @@ class Summary extends Common {
     var thisWeekend = {}, nextWeek = {}, after = {}, permEvents = {};
 
     summary.forEach(([date, events]) => {
+          if (typeof date === "string" && date.includes(this.text.dateDividor)) {
+            date = Utilities.parseDate(date, "GMT", "dd/MM/yyyy")
+          }
       var group = this.setEventGroup(date, thisWeekend, nextWeek, after, permEvents);
       group[this.DateInddmmyyyy(date)] = events;
     });
@@ -110,6 +113,7 @@ class Summary extends Common {
 
     this.summarySheet.clear();
     this.summarySheet.getRange(1, 1, summary.length, 2).setValues(summary);
+    summary.shift();
     return summary;
   }
 
@@ -253,6 +257,10 @@ class Summary extends Common {
 
   allKeysSorted(events) {
     var datesKeys = Object.keys(events);
+    if (datesKeys.length === 0) {
+      return datesKeys;
+    }
+
     if (!datesKeys[0].includes(this.text.dateDividor)) {
       return Object.keys(this.text.weekDays);
     }

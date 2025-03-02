@@ -53,6 +53,7 @@ class Records extends Common {
     }
 
     this.markRawAs(this.config.RawStatus.DONE, name, date);
+    this.setUpToDateStatus(false);
 
     // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, האם להסתיר מהסיכום
     var postArray = [postLink, tags, name, lineName, location, day, date, hour, eventLink, extraData, hide]
