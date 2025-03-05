@@ -14,8 +14,6 @@ class Summary extends Common {
     super();
     Summary.instance = this;
 
-    this.summarySheet = this.getOrCreateSheet(this.config.INNER_DB.SUMMARY_TABLE);
-
     this.today = this.setTodayDate();
     this.thu = new Date(this.today.getTime() + 1 * this.milInDay)
     this.saturday = new Date(this.thu.getTime() + 2 * this.milInDay);
@@ -115,10 +113,6 @@ class Summary extends Common {
     this.summarySheet.getRange(1, 1, summary.length, 2).setValues(summary);
     summary.shift();
     return summary;
-  }
-
-  setUpToDateStatus(newStatus) {
-    this.summarySheet.getRange(1, 2).setValue(newStatus);
   }
   // #endregion test
 

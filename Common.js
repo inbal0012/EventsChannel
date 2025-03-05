@@ -21,6 +21,8 @@ class Common {
     this.recordsSheet = this.recordsSpreadsheet.getSheetByName(this.config.INNER_DB.RECORDS_TABLE);
     this.recordsData = this.recordsSheet.getDataRange().getValues();
 
+    this.summarySheet = this.getOrCreateSheet(this.config.INNER_DB.SUMMARY_TABLE);
+
     this.ENMTableCols = this.config.ENMTableCols;
     this.RecordsTableCols = this.config.RecordsTableCols;
 
@@ -130,6 +132,16 @@ class Common {
       name = 'י ' + name;
     }
     return name;
+  }
+
+  /**
+   * Removes prefix if string starts with "י "
+   * @param {string} str Input string
+   * @returns {string} String without prefix
+   */
+  reversePrefixIfExists(str) {
+    if (!str) return str;
+    return str.startsWith('י ') ? str.substring(2).trim() : str;
   }
 
   parseLine(eventName, lineName) {
