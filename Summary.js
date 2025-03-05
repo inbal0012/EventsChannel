@@ -141,10 +141,11 @@ class Summary extends Common {
     // check only last 50 entries
     for (var i = eventsData.length - 1; i > Math.max(0, eventsData.length - 100); i--) {
       var event = eventsData[i];
+      var eventName = event[nameCol].replace(/\*/g, this.EMPTY_STRING);
 
       if (event[doneCol] === this.config.RawStatus.PENDING) {
         pendingCount++;
-        pendingEvents.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
+        pendingEvents.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + eventName);
         continue;
       }
 
@@ -154,7 +155,7 @@ class Summary extends Common {
       count++;
       typeCol = event[iamCol] === this.text.Organizer ? organizerCol : nonOrganizerCol;
       if (event[typeCol] == PostTypes.publish) {
-        events.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + event[nameCol]);
+        events.push(this.DateInddmmyyyy(event[dateCol]) + this.text.spacedHyphen + eventName);
       }
       else if (event[typeCol] == PostTypes.share) {
         events.push(this.text.ShareEvent + event[titleCol]);

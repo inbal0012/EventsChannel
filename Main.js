@@ -24,13 +24,9 @@ function SUBMIT() {
 
 function sendWeeklySummary() {
   const telegram = new Telegram();
+  const summary = new Summary();
 
-  const recordsSpreadsheet = SpreadsheetApp.openByUrl(telegram.config.INNER_DB.SHEET_URL);
-  const wsSheet = recordsSpreadsheet.getSheetByName(telegram.config.INNER_DB.WEEKLY_SUMMERY_TABLE);
-
-  const summary = wsSheet.getRange(2, 1).getValue();
-
-  telegram.sendPost(summary);
+  telegram.sendPost(summary.buildSummaryMessage());
 }
 
 function testInbal() {
@@ -69,7 +65,7 @@ function createPosts(post) {
   var events = []
 
   var FIXUPS_LINE = 894
-  if (eventsData.length > FIXUPS_LINE-5) {
+  if (eventsData.length > FIXUPS_LINE - 5) {
     events.push(["Inbal, FIXUPS_LINE is close!",]);
   }
 

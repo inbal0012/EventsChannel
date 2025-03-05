@@ -10,7 +10,7 @@ if (typeof require !== 'undefined') {
 class CreatePost extends Common {
   constructor() {
     if (CreatePost.instance) return CreatePost.instance;
-    
+
     super();
     CreatePost.instance = this;
 
@@ -61,8 +61,8 @@ class CreatePost extends Common {
 
     var event = row[linkCol] != this.EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol];
     return this.text.FixPost + this.text.breakline + event + this.text.breakline +
-           this.text.Contact + row[contactCol] + this.text.breakline +
-           this.text.NeededUpdates + row[updatesCol];
+      this.text.Contact + row[contactCol] + this.text.breakline +
+      this.text.NeededUpdates + row[updatesCol];
   }
 
   contactRequest(row) {
@@ -293,6 +293,9 @@ class CreatePost extends Common {
     var tagsCol = this.getRecordsTableCol(this.RecordsTableCols.Tags);
 
     var ev = this.recordsData.find(event => event[postLinkCol] == postLink);
+    if (!ev) {
+      return "reference link not found - " + postLink;
+    }
     return ev[tagsCol];
   }
 
@@ -449,7 +452,7 @@ class CreatePost extends Common {
 
   parseName(row) {
     var eventNameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
-    var name = row[eventNameCol];
+    var name = row[eventNameCol].replace(/\*/g, this.EMPTY_STRING);
 
     return this.addPrefixIfNeeded(name);
 

@@ -46,8 +46,6 @@ class Records extends Common {
       if (response == "yes") {
         hide = this.text.Yes;
       } else {
-        // this.cleanForm();
-        // this.markRawAs(this.config.RawStatus.CANCELED, name, date);
         return;
       }
     }

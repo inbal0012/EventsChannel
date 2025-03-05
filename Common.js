@@ -110,6 +110,10 @@ class Common {
       if (i_date in this.text.weekDays) {
         return i_date;
       }
+      if (i_date === this.text.PermanentEvent) {
+        return i_date;
+      }
+
       i_date = Utilities.parseDate(i_date, "GMT", "dd/MM/yyyy");
     }
     var curDate = new Date(i_date);
