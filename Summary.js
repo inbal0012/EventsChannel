@@ -80,9 +80,9 @@ class Summary extends Common {
     var thisWeekend = {}, nextWeek = {}, after = {}, permEvents = {};
 
     summary.forEach(([date, events]) => {
-          if (typeof date === "string" && date.includes(this.text.dateDividor)) {
-            date = Utilities.parseDate(date, "GMT", "dd/MM/yyyy")
-          }
+      if (typeof date === "string" && date.includes(this.text.dateDividor)) {
+        date = Utilities.parseDate(date, "GMT", "dd/MM/yyyy")
+      }
       var group = this.setEventGroup(date, thisWeekend, nextWeek, after, permEvents);
       group[this.DateInddmmyyyy(date)] = events;
     });
@@ -135,7 +135,7 @@ class Summary extends Common {
     // check only last 50 entries
     for (var i = eventsData.length - 1; i > Math.max(0, eventsData.length - 100); i--) {
       var event = eventsData[i];
-      var eventName = event[nameCol].replace(/\*/g, this.EMPTY_STRING);
+      var eventName = event[nameCol];
 
       if (event[doneCol] === this.config.RawStatus.PENDING) {
         pendingCount++;
@@ -275,7 +275,7 @@ class Summary extends Common {
   setEventGroup(curDate, thisWeekend, nextWeek, after, permEvents = undefined) {
     if (typeof curDate === 'string') {
       return permEvents;
-    } 
+    }
     if (curDate < this.saturday) {
       return thisWeekend;
     }

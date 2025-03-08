@@ -452,7 +452,7 @@ class CreatePost extends Common {
 
   parseName(row) {
     var eventNameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
-    var name = row[eventNameCol].replace(/\*/g, this.EMPTY_STRING);
+    var name = row[eventNameCol];
 
     return this.addPrefixIfNeeded(name);
 
