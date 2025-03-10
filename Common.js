@@ -153,7 +153,7 @@ class Common {
     if (lineMatch != null)
       return this.EMPTY_STRING;
 
-    return this.SPACE_STRING + this.text.By + lineName;
+    return this.escapeMarkdownV2(this.SPACE_STRING + this.text.By + lineName);
   }
 
   getOrCreateSheet(sheetName) {
@@ -168,6 +168,18 @@ class Common {
     this.summarySheet.getRange(1, 2).setValue(newStatus);
   }
 
+  escapeMarkdownV2(text) {
+    console.log("Mark " + text)
+    const specialCharacters = ['_', '*', '[', ']', '~', '`', '>', '#', '+', '=', '|', '{', '}'];
+    let escapedText = text;
+
+    specialCharacters.forEach(char => {
+      const regex = new RegExp(`\\${char}`, 'g');
+      escapedText = escapedText.replace(regex, `\\${char}`);
+    });
+
+    return escapedText;
+  }
 }
 if (typeof module !== "undefined") module.exports = Common;
 

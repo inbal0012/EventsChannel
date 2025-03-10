@@ -14,8 +14,8 @@ class Telegram {
     const url = `https://api.telegram.org/bot${this.config.TELEGRAM.BOT_TOKEN}/sendMessage`;
     const payload = {
       chat_id: chat_id,
-      text: this.escapeMarkdownV2(message),
-      parse_mode: 'MarkdownV2'
+      text: message,
+      parse_mode: 'Markdown'
     };
 
     const options = {
@@ -84,18 +84,6 @@ class Telegram {
       console.log(eventDescription);
       this.sendTelegramMessageToInbal(eventDescription);
     }
-  }
-
-  escapeMarkdownV2(text) {
-    const specialCharacters = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
-    let escapedText = text;
-
-    specialCharacters.forEach(char => {
-      const regex = new RegExp(`\\${char}`, 'g');
-      escapedText = escapedText.replace(regex, `\\${char}`);
-    });
-
-    return escapedText;
   }
 }
 

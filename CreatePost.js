@@ -60,23 +60,23 @@ class CreatePost extends Common {
     var updatesCol = this.getEnmTableCol(this.ENMTableCols.Updates);
 
     var event = row[linkCol] != this.EMPTY_STRING ? row[linkCol] : this.text.By + row[lineCol];
-    return this.text.FixPost + this.text.breakline + event + this.text.breakline +
+    return this.escapeMarkdownV2(this.text.FixPost + this.text.breakline + event + this.text.breakline +
       this.text.Contact + row[contactCol] + this.text.breakline +
-      this.text.NeededUpdates + row[updatesCol];
+      this.text.NeededUpdates + row[updatesCol]);
   }
 
   contactRequest(row) {
     var contWay = this.getEnmTableCol(this.ENMTableCols.ContactWays)
     var contSubj = this.getEnmTableCol(this.ENMTableCols.ContactSubject);
 
-    return this.text.ContactRequest + this.DOUBLE_SPACE + this.text.Contact + row[contWay] + this.text.breakline + this.text.Reason + row[contSubj];
+    return this.escapeMarkdownV2(this.text.ContactRequest + this.DOUBLE_SPACE + this.text.Contact + row[contWay] + this.text.breakline + this.text.Reason + row[contSubj]);
   }
 
   shareEvent(row) {
     var linkToEventCol = this.getEnmTableCol(this.ENMTableCols.LinkToEvent);
     var TitleCol = this.getEnmTableCol(this.ENMTableCols.Title);
 
-    return this.text.ShareEvent + this.text.breakline + row[TitleCol] + this.text.spacedHyphen + row[linkToEventCol];
+    return this.escapeMarkdownV2(this.text.ShareEvent + this.text.breakline + row[TitleCol] + this.text.spacedHyphen + row[linkToEventCol]);
   }
 
   buildPost(row) {
@@ -111,7 +111,7 @@ class CreatePost extends Common {
       discountStr += row[discountCol];
     }
 
-    return discountStr
+    return discountStr;
   }
 
   parseSystemApproved(row) {
@@ -332,7 +332,7 @@ class CreatePost extends Common {
   parseRegistrationSection(row) {
     var link = this.parseRegistration(row)
     var channelDiscount = this.parseChannelDiscount(row)
-    return link + channelDiscount;
+    return this.escapeMarkdownV2(link + channelDiscount);
   }
 
   parseRegistration(row) {
@@ -375,7 +375,7 @@ class CreatePost extends Common {
 
     var notes = row[additionalNotesCol];
     if (notes != this.EMPTY_STRING)
-      notes = this.text.telegramBold + this.text.AdditionalNotes + this.text.telegramBold + this.text.breakline + notes + this.text.breakline
+      notes = this.text.telegramBold + this.text.AdditionalNotes + this.text.telegramBold + this.text.breakline + this.escapeMarkdownV2(notes) + this.text.breakline
     return notes;
   }
 
@@ -384,7 +384,7 @@ class CreatePost extends Common {
 
     var eventDescription = row[eventDescriptionCol];
     if (eventDescription != this.EMPTY_STRING) {
-      return eventDescription
+      return this.escapeMarkdownV2(eventDescription);
     }
   }
 
@@ -439,7 +439,7 @@ class CreatePost extends Common {
     var name = this.parseNameRow(row);
     var date = this.parseDate(row);
 
-    var name_place_date = name + this.text.breakline + this.text.Location + row[locationCol] + this.text.breakline + date;
+    var name_place_date = name + this.text.breakline + this.text.Location + this.escapeMarkdownV2(row[locationCol]) + this.text.breakline + date;
     return name_place_date;
   }
 
@@ -454,7 +454,7 @@ class CreatePost extends Common {
     var eventNameCol = this.getEnmTableCol(this.ENMTableCols.EventName);
     var name = row[eventNameCol];
 
-    return this.addPrefixIfNeeded(name);
+    return this.escapeMarkdownV2(this.addPrefixIfNeeded(name));
 
   }
   // #endregion Name and Line

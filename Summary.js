@@ -135,7 +135,7 @@ class Summary extends Common {
     // check only last 50 entries
     for (var i = eventsData.length - 1; i > Math.max(0, eventsData.length - 100); i--) {
       var event = eventsData[i];
-      var eventName = event[nameCol];
+      var eventName = this.escapeMarkdownV2(event[nameCol]);
 
       if (event[doneCol] === this.config.RawStatus.PENDING) {
         pendingCount++;
@@ -353,7 +353,7 @@ class Summary extends Common {
     }
 
     summary += systemApproved;
-    summary = "[" + summary + "](" + postLink + ")";
+    summary = "[" + this.escapeMarkdownV2(summary) + "](" + postLink + ")";
 
     return summary;
   }
