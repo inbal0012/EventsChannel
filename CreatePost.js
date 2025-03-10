@@ -90,7 +90,7 @@ class CreatePost extends Common {
       return this.build2VS2Post(row);
     }
 
-    return this.parsePaidPost(row) + this.parseName_place_date(row) + this.DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferanceOnly(row) + this.DOUBLE_SPACE + this.additionalsNotes(row) + this.parseTags(row);
+    return this.parsePaidPost(row) + this.parseName_place_date(row) + this.DOUBLE_SPACE + this.parseRegistrationSection(row) + this.setReferenceOnly(row) + this.DOUBLE_SPACE + this.additionalNotes(row) + this.parseTags(row);
   }
   // #endregion Create Post
 
@@ -308,10 +308,10 @@ class CreatePost extends Common {
   }
   // #endregion Tags
 
-  setReferanceOnly(row) {
+  setReferenceOnly(row) {
     // TODO upgrade
     var lineNameCol = this.getEnmTableCol(this.ENMTableCols.LineName);
-    var context = this.text.ReferanceOnly;
+    var context = this.text.ReferenceOnly;
 
     if (context.Lines.includes(row[lineNameCol])) {
       return this.text.breakline + context.text;
@@ -370,12 +370,12 @@ class CreatePost extends Common {
   }
   // #endregion Registration Section
 
-  additionalsNotes(row) {
-    var additionalsNotesCol = this.getEnmTableCol(this.ENMTableCols.AdditionalsNotes);
+  additionalNotes(row) {
+    var additionalNotesCol = this.getEnmTableCol(this.ENMTableCols.AdditionalNotes);
 
-    var notes = row[additionalsNotesCol];
+    var notes = row[additionalNotesCol];
     if (notes != this.EMPTY_STRING)
-      notes = this.text.telegramBold + this.text.AdditionalsNotes + this.text.telegramBold + this.text.breakline + notes + this.text.breakline
+      notes = this.text.telegramBold + this.text.AdditionalNotes + this.text.telegramBold + this.text.breakline + notes + this.text.breakline
     return notes;
   }
 
