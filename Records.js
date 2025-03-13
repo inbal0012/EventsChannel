@@ -50,7 +50,12 @@ class Records extends Common {
       }
     }
 
-    this.markRawAs(this.config.RawStatus.DONE, name, date);
+    var response = Browser.msgBox(this.text.postAgain, Browser.Buttons.YES_NO);
+    if (response == "yes") {
+      this.markRawAs(this.config.RawStatus.PENDING, name, date);
+    } else {
+      this.markRawAs(this.config.RawStatus.DONE, name, date);
+    }
     this.setUpToDateStatus(false);
 
     // לינק לפוסט, תגיות, שם אירוע, שם הליין, מיקום, יום, תאריך, שעה, לינק, מידע נוסף, האם להסתיר מהסיכום
