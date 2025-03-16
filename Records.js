@@ -208,15 +208,18 @@ class Records extends Common {
     var dateCol = this.getEnmTableCol(this.ENMTableCols.Date);
     var doneCol = this.getEnmTableCol(this.ENMTableCols.Done);
 
+    name = this.reversePrefixIfExists(name);
+
     for (var i = lastRow; i > Math.max(0, lastRow - 100); i--) {
       var currEvent = rawData[i]
       var eventName = currEvent[nameCol];
       var eventDate = currEvent[dateCol];
-      if (eventName === name && this.DateInddmmyyyy(eventDate) === date) {
+      if (this.trimAndLower(eventName) === name && this.DateInddmmyyyy(eventDate) === date) {
         rawDataSheet.getRange(i + 1, doneCol + 1).setValue(status);
         return;
       }
     }
+    return "event not found";
   }
   // #endregion Submit Event
 
